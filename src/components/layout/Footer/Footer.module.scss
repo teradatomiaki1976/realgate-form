@@ -1,0 +1,220 @@
+@use "@/styles/tokens" as t;
+@use "@/styles/mixins" as m;
+@use "@/styles/components/headings" as h;
+
+/* =======================================================
+   Footer
+   Parc fermé - 2025
+   ======================================================= */
+
+.root {
+  position: relative;
+  overflow: hidden;
+  color: t.color(text);
+}
+
+/* 背景全体 */
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transform: translateY(0);
+  overflow: hidden;
+  @include m.transition(transform);
+
+  & > span {
+    position: static !important;
+  }
+
+  img {
+    object-fit: cover;
+    object-position: center top;
+    transform: scale(1.2);
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      #ffffff 0%,
+      rgba(255, 255, 255, 0) 20%,
+      rgba(255, 255, 255, 0.4) 40%,
+      rgba(255, 255, 255, 0.8) 70%,
+      rgba(255, 255, 255, 1) 100%
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+/* フッター全体を包む */
+.inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------
+   お問い合わせセクション
+-------------------------------------- */
+.contact {
+  padding-bottom: m.fluid(64, 80);
+  text-align: center;
+  color: t.color(white);
+
+  .container {
+    @include m.container();
+    margin-inline: 30px;
+    background: linear-gradient(30deg, #21a4d8, #0284c7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: m.space(40);
+    border-radius: var(--radius-md);
+    .textBlock {
+      .kicker {
+        @include h.kicker;
+        color: t.color(white);
+        margin-bottom: m.rem(24);
+      }
+      .title {
+        @include h.title;
+        color: t.color(white);
+        margin-bottom: m.rem(24);
+      }
+      .lead {
+        @include h.lead;
+        color: t.color(white);
+      }
+      .kicker,
+      .title,
+      .lead {
+        text-align: center;
+      }
+    }
+    @include m.mq(md) {
+      margin-inline: auto;
+      flex-direction: row;
+      .textBlock {
+        border-right: 2px solid rgba(255, 255, 255, 0.4);
+        padding-right: m.space(80);
+        margin-right: m.space(80);
+        .kicker,
+        .title,
+        .lead {
+          text-align: left;
+        }
+      }
+    }
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: m.space(16);
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    a {
+      width: 100%;
+    }
+  }
+}
+
+/* --------------------------------------
+   情報・ナビゲーション
+-------------------------------------- */
+.info {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+
+  .nav {
+    margin-bottom: m.space(40);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: m.space(32);
+    max-width: 900px;
+    margin-inline: auto;
+
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: m.space(16);
+      font-size: m.rem(14);
+      padding: 0;
+
+      li a {
+        color: t.color(text);
+        opacity: 0.9;
+        @include m.transition(color, opacity);
+        &:hover {
+          opacity: 1;
+          color: t.color(primary);
+        }
+      }
+    }
+
+    .logo {
+      width: 200px;
+      height: auto;
+      margin-bottom: m.space(200);
+      @include m.mq(md) {
+        margin-bottom: m.space(24);
+      }
+    }
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: t.color(text);
+    padding-top: m.space(32);
+    gap: m.space(48);
+
+    ul {
+      padding: 0;
+      li {
+        color: t.color(white);
+      }
+    }
+    .address01 a {
+      color: t.color(primary);
+      font-size: m.rem(12);
+    }
+    .address03 {
+      li,
+      .sns {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: m.space(8);
+        a {
+          width: 24px;
+        }
+      }
+      li:nth-child(1) {
+        padding-bottom: m.space(8);
+        margin-bottom: m.space(8);
+        border-bottom: 1px solid t.color(white);
+      }
+    }
+    @include m.mq(md) {
+      flex-direction: row;
+    }
+  }
+
+  .copy {
+    font-size: m.rem(14);
+    background: t.color(text);
+    color: t.color(white);
+    text-align: center;
+    padding: m.space(32) 0;
+  }
+}

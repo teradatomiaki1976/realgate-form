@@ -1,0 +1,23 @@
+
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+.marquee {
+  --speed: 20s;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.marquee__track {
+  display: inline-block;
+  animation: marquee var(--speed) linear infinite;
+  will-change: transform;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

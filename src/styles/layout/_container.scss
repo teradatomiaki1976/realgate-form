@@ -1,0 +1,24 @@
+@use "@/styles/tokens" as t;
+@use "@/styles/mixins" as m;
+
+/* ------------------------------
+   Container / Section Layout
+   ------------------------------ */
+
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+  z-index: 1;
+}
+
+/* 汎用セクション余白（上下にゆとり） */
+.section {
+  padding-block: m.fluid(48, 96);
+}
+
+/* サイト全体の最大幅を超える背景を扱う用 */
+.fullwidth {
+  width: 100%;
+  margin-inline: 0;
+}

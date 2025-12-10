@@ -1,0 +1,205 @@
+@use "@/styles/tokens" as t;
+@use "@/styles/mixins" as m;
+@use "@/styles/components/headings" as h;
+
+.root {
+  @include m.container(100%, 0);
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  z-index: var(--z-header);
+  // &::after {
+  //   content: "";
+  //   position: absolute;
+  //   inset: 0;
+  //   background: linear-gradient(
+  //     to top,
+  //     rgba(255, 255, 255, 0) 0%,
+  //     rgba(255, 255, 255, 0.4) 100%
+  //   );
+  //   pointer-events: none;
+  // }
+}
+
+.inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-block: m.rem(14);
+  padding-inline: m.rem(20);
+
+  @include m.mq(md) {
+    padding-inline: m.rem(32);
+  }
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+.logo {
+  background: m.color(white);
+  padding: 24px 32px;
+  border-radius: 0 0 20px 0;
+  img {
+    height: 32px;
+  }
+}
+
+.menuBtn {
+  width: 80px;
+  display: grid;
+  padding: 16px;
+  gap: 6px;
+  border: 0;
+  background: m.color(primary-600);
+  border-radius: 0 0 0 20px;
+  cursor: pointer;
+  span {
+    height: 3px;
+    background: m.color(white);
+    display: block;
+  }
+  p {
+    font-size: var(--fs-xs);
+    color: m.color(white);
+    text-align: center;
+    font-family: "Alata", "Noto Sans JP", system-ui, -apple-system, sans-serif;
+    line-height: 1;
+  }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s;
+  height: 100vh;
+  z-index: var(--z-overlay);
+}
+.drawer {
+  position: fixed;
+  z-index: var(--z-drawer);
+  top: 0;
+  right: 0;
+  width: min(92vw, 420px);
+  height: 100dvh;
+  background: #0b79c9;
+  color: #fff;
+  transform: translateX(100%);
+  transition: transform 0.35s;
+  padding: m.space(24) m.space(32);
+  width: 100vw;
+  display: none;
+  @include m.mq(sp) {
+    width: 70vw;
+    padding: m.space(24) m.space(60);
+  }
+  @include m.mq(md) {
+    width: 50vw;
+    padding: m.space(24) m.space(120);
+  }
+}
+
+.open {
+  transform: translateX(0) !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.overlayOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: m.space(8);
+  margin: m.space(32) 0;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+.link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px 6px;
+  border-radius: 8px;
+  gap: m.space(8);
+  @include m.transition(transform);
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    background: url("/icons/arrow2.svg") no-repeat center;
+  }
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.close {
+  position: absolute;
+  top: m.space(16);
+  right: m.space(16);
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+  font-size: 14px;
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  span {
+    display: block;
+    font-size: 40px;
+    margin-bottom: m.space(4);
+  }
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: m.space(16);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  a {
+    width: 100%;
+  }
+}
+.btnAccent {
+  background: #ffd100;
+  color: #000;
+  padding: 14px 16px;
+  border-radius: 999px;
+  text-align: center;
+}
+.btnLine {
+  background: #cfe5f6;
+  color: #073a58;
+  padding: 14px 16px;
+  border-radius: 999px;
+  text-align: center;
+}
+
+:global(html),
+:global(body) {
+  overflow-x: hidden;
+  overscroll-behavior: none; // ← iOSでの弾性スクロール防止
+}
+:global(html.is-locked),
+:global(body.is-locked),
+:global(html.is-locked) body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}

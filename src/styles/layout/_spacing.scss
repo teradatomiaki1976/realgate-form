@@ -1,0 +1,30 @@
+@use "sass:math";
+
+/* ------------------------------
+   Utility Spacing Classes
+   ------------------------------ */
+
+@function rem($px) {
+  @return math.div($px, 16) * 1rem;
+}
+
+$spaces: 8, 12, 16, 24, 32, 40, 48, 64, 80;
+
+@each $val in $spaces {
+  .mt-#{$val} {
+    margin-top: rem($val);
+  }
+  .mb-#{$val} {
+    margin-bottom: rem($val);
+  }
+  .pt-#{$val} {
+    padding-top: rem($val);
+  }
+  .pb-#{$val} {
+    padding-bottom: rem($val);
+  }
+}
+
+.section-gap {
+  margin-top: clamp(48px, 8vw, 96px);
+}

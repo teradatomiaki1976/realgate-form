@@ -1,0 +1,9 @@
+@use "@/styles/mixins" as m;
+
+html,
+body {
+  background: var(--color-bg);
+  scroll-behavior: auto;
+  scroll-padding-top: m.fluid(72, 120);
+  line-height: 1.5;
+}

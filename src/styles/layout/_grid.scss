@@ -1,0 +1,36 @@
+@use "styles/mixins" as *;
+
+/* ------------------------------
+   Responsive Grids
+   ------------------------------ */
+
+/* 2カラムグリッド（sp時1列） */
+.grid-2 {
+  display: grid;
+  gap: 24px;
+  @include mq(md) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 3カラムグリッド（sp時1列） */
+.grid-3 {
+  display: grid;
+  gap: 24px;
+  @include mq(md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 画像＋テキストの左右反転用 */
+.grid-reverse {
+  @include mq(md) {
+    grid-auto-flow: dense;
+    & > :first-child {
+      order: 2;
+    }
+    & > :last-child {
+      order: 1;
+    }
+  }
+}

@@ -1,0 +1,199 @@
+@use "sass:map";
+
+$breakpoints: (
+  sp: 480px,
+  md: 769px,
+  lg: 1024px,
+  xl: 1280px,
+);
+
+$container: (
+  max: 1200px,
+  pad: 30px,
+  pad-md: 24px,
+  pad-lg: 32px,
+);
+
+/* ---- Core maps ---- */
+$colors: (
+  primary: #21a4d8,
+  primary-600: #0284c7,
+  primary-50: #edf8fc,
+
+  second: #ffe500,
+  second-600: #f2c500,
+  second-50: #fffacf,
+  second-hover: #ffff00,
+
+  green: #008c56,
+  red: #e24242,
+  purple: #8846c1,
+  orange: #ff7300,
+
+  text: #111111,
+  text-muted: #555555,
+  bg: #ffffff,
+  white: #ffffff,
+  black: #111111,
+
+  surface: #f5f5f5,
+  border: #c9c9c9,
+);
+
+$space: (
+  0: 0,
+  2: 2px,
+  4: 4px,
+  8: 8px,
+  12: 12px,
+  16: 16px,
+  20: 20px,
+  24: 24px,
+  28: 28px,
+  32: 32px,
+  40: 40px,
+  48: 48px,
+  56: 56px,
+  64: 64px,
+  72: 72px,
+  80: 80px,
+  88: 88px,
+  96: 96px,
+  104: 104px,
+  112: 112px,
+  120: 120px,
+  160: 160px,
+  200: 200px,
+);
+
+$font-sizes: (
+  xs: 12px,
+  sm: 14px,
+  base: 16px,
+  md: 18px,
+  lg: 20px,
+  xl: 24px,
+  2xl: 32px,
+  3xl: 40px,
+  4xl: 48px,
+);
+
+/* 半径 / 影 / 速度・イージング */
+$radii: (
+  sm: 6px,
+  md: 10px,
+  lg: 16px,
+  pill: 999px,
+);
+
+$shadows: (
+  sm: 0 2px 6px rgba(0, 0, 0, 0.06),
+  md: 0 6px 16px rgba(0, 0, 0, 0.1),
+  prime: 6px 6px 0 rgba(33, 164, 216, 1),
+);
+
+$motion: (
+  fast: 0.15s,
+  normal: 0.25s,
+  slow: 0.4s,
+  ease: cubic-bezier(0.2, 0.7, 0.2, 1),
+);
+
+/* Zレイヤー（重なり順の基準） */
+$z-index: (
+  base: 0,
+  header: 900,
+  drawer: 1000,
+  modal: 2000,
+  toast: 3000,
+  overlay: 800,
+  tooltip: 4000,
+  always-top: 9999,
+);
+
+/* ---- Transition presets ---- */
+$transition-duration-fast: 0.2s;
+$transition-duration-base: 0.4s;
+$transition-duration-slow: 0.6s;
+
+$transition-ease-default: ease;
+$transition-ease-smooth: cubic-bezier(0.25, 0.8, 0.25, 1);
+$transition-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+/* ---- CSS Variables export ----
+   :root に必要最低限のカスタムプロパティを吐き出す
+*/
+:root {
+  /* colors */
+  --color-primary: #{map.get($colors, primary)};
+  --color-primary-dark: #{map.get($colors, primary-600)};
+  --color-primary-50: #{map.get($colors, primary-50)};
+  --color-accent: #{map.get($colors, accent)};
+  --color-text: #{map.get($colors, text)};
+  --color-text-sub: #{map.get($colors, text-sub)};
+  --color-bg: #{map.get($colors, bg)};
+  --color-surface: #{map.get($colors, surface)};
+  --color-surface-muted: #{map.get($colors, surface-muted)};
+  --color-border: #{map.get($colors, border)};
+  --color-white: #{map.get($colors, white)};
+  --color-black: #{map.get($colors, black)};
+  --color-success: #{map.get($colors, success)};
+  --color-warning: #{map.get($colors, warning)};
+  --color-danger: #{map.get($colors, danger)};
+
+  /* fonts */
+  --font-body: "Noto Sans JP", system-ui, -apple-system, sans-serif;
+  --font-display: "Alata", "Noto Sans JP", system-ui, -apple-system, sans-serif;
+
+  /* type scale as CSS vars (便利) */
+  --fs-xs: #{map.get($font-sizes, xs)};
+  --fs-sm: #{map.get($font-sizes, sm)};
+  --fs-base: #{map.get($font-sizes, base)};
+  --fs-md: #{map.get($font-sizes, md)};
+  --fs-lg: #{map.get($font-sizes, lg)};
+  --fs-xl: #{map.get($font-sizes, xl)};
+  --fs-2xl: #{map.get($font-sizes, 2xl)};
+  --fs-3xl: #{map.get($font-sizes, 3xl)};
+  --fs-4xl: #{map.get($font-sizes, 4xl)};
+
+  /* container */
+  --container-max: #{map.get($container, max)};
+  --container-pad: #{map.get($container, pad)};
+
+  /* radii / shadows / motion */
+  --radius-sm: #{map.get($radii, sm)};
+  --radius-md: #{map.get($radii, md)};
+  --radius-lg: #{map.get($radii, lg)};
+  --radius-pill: #{map.get($radii, pill)};
+
+  --shadow-sm: #{map.get($shadows, sm)};
+  --shadow-md: #{map.get($shadows, md)};
+
+  --motion-fast: #{map.get($motion, fast)};
+  --motion-normal: #{map.get($motion, normal)};
+  --motion-slow: #{map.get($motion, slow)};
+  --motion-ease: #{map.get($motion, ease)};
+
+  /* z-index */
+  --z-base: #{map.get($z-index, base)};
+  --z-header: #{map.get($z-index, header)};
+  --z-drawer: #{map.get($z-index, drawer)};
+  --z-modal: #{map.get($z-index, modal)};
+  --z-toast: #{map.get($z-index, toast)};
+  --z-overlay: #{map.get($z-index, overlay)};
+  --z-always-top: #{map.get($z-index, always-top)};
+}
+
+/* ---- Optional helpers (Sass側で参照しやすいAPI) ---- */
+@function color($key) {
+  @return map.get($colors, $key);
+}
+@function space($key) {
+  @return map.get($space, $key);
+}
+@function fs($key) {
+  @return map.get($font-sizes, $key);
+}
+@function bp($key) {
+  @return map.get($breakpoints, $key);
+}
