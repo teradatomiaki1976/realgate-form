@@ -1,0 +1,30 @@
+@use "@/styles/mixins" as m;
+@use "@/styles/tokens" as t;
+
+.field {
+  display: flex;
+  align-items: center;
+  border: none;
+}
+
+.radioWrap {
+  display: flex;
+  gap: m.fluid(14, 18);
+  flex-wrap: wrap;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: m.fluid(12, 16);
+  height: 52px;
+  padding: 0 16px;
+  font-size: m.fluid(18, 20);
+  border: 1px solid #bbb;
+  border-radius: m.radius(md);
+  background: #fff;
+  cursor: pointer;
+}
+.input {
+  transform: scale(1.4);
+}

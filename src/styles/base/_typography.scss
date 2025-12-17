@@ -1,6 +1,9 @@
 @use "@/styles/tokens" as t;
 @use "@/styles/mixins" as m;
 
+/* -----------------------------------
+   全見出しの共通設定
+----------------------------------- */
 h1,
 h2,
 h3,
@@ -8,28 +11,45 @@ h4,
 h5,
 h6 {
   font-family: var(--font-body);
+  font-weight: 700;
+  color: m.color(text);
+  margin: 0 0 m.space(16);
 }
+
+/* -----------------------------------
+   見出し階層（フォーム向けに視認性UP）
+----------------------------------- */
 h1 {
-  font-size: fluid(28, 48);
-  line-height: 1.2;
+  font-size: m.fluid(32, 40);
+  line-height: 1.25;
 }
 
 h2 {
-  font-size: fluid(22, 32);
+  font-size: m.fluid(24, 30);
   line-height: 1.3;
-}
-h3 {
-  font-size: fluid(22, 32);
-  line-height: 1.3;
+  margin-top: m.space(32);
 }
 
+h3 {
+  font-size: m.fluid(20, 24);
+  line-height: 1.35;
+  margin-top: m.space(24);
+}
+
+/* -----------------------------------
+   本文・リスト（読みやすさ最重視）
+----------------------------------- */
 p,
 li {
   font-family: var(--font-body);
   font-size: m.rem(16);
-  font-weight: 500;
-  color: var(--color-text);
+  line-height: 1.6;
+  color: m.color(text);
 }
-span {
-  font-family: var(--font-body);
+
+/* 小さい補足説明 */
+.small-text {
+  font-size: m.rem(14);
+  line-height: 1.6;
+  color: m.color(text-muted);
 }

@@ -1,8 +1,9 @@
+@use "@/styles/tokens" as *;
 @use "@/styles/mixins" as m;
 
 html,
 body {
-  background: var(--color-bg);
+  background: m.color(bg);
   scroll-behavior: auto;
   scroll-padding-top: m.fluid(72, 120);
   line-height: 1.5;

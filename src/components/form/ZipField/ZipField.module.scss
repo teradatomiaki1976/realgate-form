@@ -1,0 +1,38 @@
+@use "@/styles/mixins" as m;
+@use "@/styles/tokens" as t;
+
+.field {
+  display: grid;
+  gap: m.fluid(4, 6);
+}
+
+.wrap {
+  display: flex;
+  gap: m.fluid(12, 16);
+}
+
+.input {
+  display: flex;
+  align-items: center;
+  width: 130px;
+  height: 52px;
+  padding: 0 16px;
+  font-size: m.fluid(18, 20);
+  border: 1px solid #bbb;
+  border-radius: m.radius(md);
+  background: #fff;
+}
+
+.btn {
+  cursor: pointer;
+  padding: 0 16px;
+  font-size: m.fluid(14, 16);
+  font-weight: bold;
+  border: 1px solid #bbb;
+  border-radius: m.radius(md);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}

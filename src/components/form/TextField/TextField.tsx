@@ -1,23 +1,25 @@
+// src/components/form/TextField/TextField.tsx
 "use client";
 
 import { useFormContext } from "react-hook-form";
 import s from "./TextField.module.scss";
 
 type Props = {
-  label: string;
+  label?: string;
   name: string;
+  type?: string;
   placeholder?: string;
   required?: boolean;
-  type?: string;
   className?: string;
+  disabled?: boolean;
 };
 
 export default function TextField({
   label,
   name,
-  placeholder = "",
-  required = false,
   type = "text",
+  placeholder = "",
+  required,
   className,
 }: Props) {
   const {
@@ -29,16 +31,14 @@ export default function TextField({
 
   return (
     <div className={`${s.field} ${className ?? ""}`}>
-      <label className={s.label}>
-        {label}
-        {required && <span className={s.required}>*</span>}
-      </label>
+      {/* required の * はここでは表示しない */}
+      {label && <label className={s.label}>{label}</label>}
 
       <input
         type={type}
         placeholder={placeholder}
+        {...register(name, { required })}
         className={`${s.input} ${error ? s.errorInput : ""}`}
-        {...register(name)}
       />
 
       {error && <p className={s.errorText}>{error}</p>}

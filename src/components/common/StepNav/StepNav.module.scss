@@ -1,0 +1,108 @@
+@use "@/styles/mixins" as m;
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  gap: m.fluid(8, 16);
+  margin-bottom: 40px;
+}
+
+.step {
+  height: 100px;
+  padding: 16px 0;
+  background: m.color(primary-50);
+  color: #fff;
+  text-align: center;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  span {
+    display: none;
+    @include m.mq(md) {
+      display: inline-block;
+    }
+  }
+  .stepNumber,
+  .stepLabel {
+    line-height: 1;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -20px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 20px solid m.color(primary-50);
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 20px solid m.color(white);
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+  }
+  &:nth-of-type(1) {
+    z-index: 3;
+    border-radius: m.radius(md) 0 0 m.radius(md);
+    &::after {
+      display: none;
+    }
+  }
+  &:nth-of-type(2) {
+    z-index: 2;
+    background: m.color(primary-150);
+    &::before {
+      border-left: 20px solid m.color(primary-150);
+    }
+  }
+  &:nth-of-type(3) {
+    z-index: 1;
+    border-radius: 0 m.radius(md) m.radius(md) 0;
+    &::before {
+      display: none;
+    }
+  }
+}
+
+.active {
+  background: m.color(primary);
+  color: #fff;
+  .stepNumber {
+    background: #fff;
+    color: m.color(primary);
+  }
+  .stepLabel {
+    color: #fff;
+  }
+  &::before {
+    border-left: 20px solid m.color(primary);
+  }
+}
+
+.stepNumber {
+  font-size: m.fluid(14, 16);
+  letter-spacing: 0.1em;
+  margin-bottom: m.fluid(6, 8);
+  background: m.color(primary);
+  color: #fff;
+  display: inline-block;
+  padding: 2px 4px;
+  font-weight: 900;
+}
+
+.stepLabel {
+  color: m.color(text-muted);
+  font-size: m.fluid(22, 24);
+  font-weight: 700;
+}

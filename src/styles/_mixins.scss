@@ -2,158 +2,66 @@
 @use "sass:math";
 @use "@/styles/tokens" as t;
 
-/* =======================================================
-   Parc fermé - SCSS Mixins & Utilities
-   2025 optimized version
-   ======================================================= */
-
-/* --------------------------------------
-   1. Unit conversion
--------------------------------------- */
-
-// px → rem 変換関数（ベース16px想定）
-@function rem($px, $base: 16) {
-  // 単位付き(px)でもOKにする
+/* rem変換 */
+@function rem($px) {
   $numeric: if(unit($px) == "px", math.div($px, 1px), $px);
-  @return math.div($numeric, $base) * 1rem;
+  @return math.div($numeric, 16) * 1rem;
 }
 
-// spacing mapからrem値を取得（例：m.space(16) → 1rem）
+/* spacing */
 @function space($key) {
-  $val: map.get(t.$space, $key);
-
-  @if $val == null {
-    @warn "space() - '#{$key}' not found in $space map.";
-    @return null;
+  $v: map.get(t.$space, $key);
+  @if $v == null {
+    @warn "space #{$key} not found";
   }
-
-  // px指定ならrem換算、0ならそのまま返す
-  @if $val == 0 {
-    @return 0;
-  } @else if (unit($val) == "px") {
-    @return rem($val);
-  } @else {
-    @return $val;
-  }
+  @return rem($v);
 }
 
-/* --------------------------------------
-   2. Colors / Breakpoints
--------------------------------------- */
+/* color */
 @function color($key) {
   @return map.get(t.$colors, $key);
 }
 
-// Media query helper
+/* media query */
 @mixin mq($key) {
-  @if map.has-key(t.$breakpoints, $key) {
-    @media (min-width: map.get(t.$breakpoints, $key)) {
-      @content;
-    }
-  } @else {
-    @warn "No breakpoint `#{$key}` found.";
+  @media (min-width: map.get(t.$breakpoints, $key)) {
+    @content;
   }
 }
 
-/* --------------------------------------
-   3. Fluid type scale
--------------------------------------- */
-// fluid(minPx, maxPx, vw-min: 320, vw-max: 1440)
-@function fluid($min, $max, $vw-min: 320, $vw-max: 1440) {
+/* fluid（範囲をフォーム向けに縮小） */
+@function fluid($min, $max, $vw-min: 360, $vw-max: 1280) {
   $slope: math.div($max - $min, $vw-max - $vw-min) * 100;
   $intercept: $min - math.div($slope * $vw-min, 100);
   @return clamp(#{$min}px, #{$intercept}px + #{$slope}vw, #{$max}px);
 }
 
-/* --------------------------------------
-   4. Resets / Layout
--------------------------------------- */
-@mixin button-reset {
-  appearance: none;
-  border: none;
-  background: transparent;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-}
-
-// container layout helper
-@mixin container($max: var(--container-max), $pad: var(--container-pad)) {
-  max-width: $max;
+/* container（フォーム向けに狭め） */
+@mixin container() {
+  max-width: var(--container-max);
   margin-inline: auto;
-  padding-inline: $pad;
+  padding-inline: var(--container-pad);
 }
 
-/* --------------------------------------
-   5. Transition / Motion
--------------------------------------- */
-@mixin transition(
-  $prop: all,
-  $duration: t.$transition-duration-base,
-  $ease: t.$transition-ease-default
-) {
-  transition: $prop $duration $ease;
+/* 優しいトランジション */
+@mixin transition($prop: all) {
+  transition: $prop var(--motion-fast) var(--motion-ease);
 }
 
-/* --------------------------------------
-   6. Section Space (セクション余白管理)
--------------------------------------- */
-@mixin section-space(
-  $top: fluid(48, 80),
-  $bottom: fluid(48, 80),
-  $margin: fluid(64, 96),
-  $type: null
-) {
-  padding-top: $top;
-  padding-bottom: $bottom;
+/* section-space：LP向けを撤去し、フォーム向けに最適化 */
+@mixin section-space($y: space(32)) {
+  padding-block: $y;
 
-  @if $type == "no-margin" {
-    margin-bottom: 0;
-  } @else {
-    margin-bottom: $margin;
+  @include mq(md) {
+    padding-block: space(48);
   }
 }
 
-/* -----------------------------
-   Radius
------------------------------ */
+/* radius */
 @function radius($key) {
   @return map.get(t.$radii, $key);
 }
 
-/* -----------------------------
-   Shadow
------------------------------ */
 @function shadow($key) {
   @return map.get(t.$shadows, $key);
-}
-
-/* -----------------------------
-   Z-index
------------------------------ */
-@function z($key) {
-  @return map.get(t.$z-index, $key);
-}
-
-/* -----------------------------
-   Motion speed / easing
------------------------------ */
-@function motion($key) {
-  @return map.get(t.$motion, $key);
-}
-
-/* -----------------------------
-   Font-size map (px)
------------------------------ */
-@function fs($key) {
-  @return map.get(t.$font-sizes, $key);
-}
-
-/* -----------------------------
-   Breakpoint value (px)
------------------------------ */
-@function bp($key) {
-  @return map.get(t.$breakpoints, $key);
 }

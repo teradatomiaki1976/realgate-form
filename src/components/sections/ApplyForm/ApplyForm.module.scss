@@ -1,0 +1,182 @@
+@use "@/styles/mixins" as m;
+
+.root {
+  display: grid;
+  gap: m.fluid(16, 32);
+}
+.inner {
+  display: grid;
+  gap: m.fluid(8, 12);
+}
+.card {
+  background: m.color(surface);
+  border-radius: m.radius(lg);
+  padding: m.fluid(20, 64);
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: m.fluid(8, 16);
+  font-size: m.fluid(24, 40);
+  margin-top: 0;
+  margin-bottom: m.fluid(40, 64);
+  text-align: center;
+  line-height: 1;
+  padding-bottom: m.fluid(24, 32);
+  border-bottom: 1px solid m.color(border);
+  .icon {
+    display: inline-flex;
+    line-height: 1;
+    margin-top: m.fluid(2, 5);
+    font-size: m.fluid(40, 48);
+    color: m.color(primary);
+  }
+}
+
+.body {
+  display: grid;
+  gap: m.fluid(24, 40);
+  span {
+    display: block;
+    font-size: m.fluid(12, 14);
+    font-weight: normal;
+    margin-top: 4px;
+  }
+}
+.desc {
+  text-align: center;
+  margin-bottom: m.fluid(16, 24);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.br {
+  display: block;
+  @include m.mq(md) {
+    display: none;
+  }
+}
+.subtitle {
+  margin-top: 0;
+  margin-bottom: m.fluid(4, 8);
+  display: flex;
+  align-items: center;
+  .span {
+    font-size: m.fluid(18, 20);
+  }
+}
+.checkGroup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  padding: m.fluid(16, 24);
+  margin-bottom: m.fluid(20, 40);
+  box-shadow: m.shadow(md);
+}
+.checkbox {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: m.fluid(8, 16);
+  padding-block: m.fluid(16, 24);
+  font-size: m.fluid(16, 20);
+  font-weight: 600;
+  background: m.color(check);
+  border-radius: m.radius(md);
+  cursor: pointer;
+  .input {
+    transform: scale(1.6);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: m.fluid(8, 16);
+}
+.required {
+  color: #fff;
+  margin-left: m.fluid(2, 4);
+  background: m.color(red);
+  font-size: m.fluid(12, 14);
+  padding: 2px;
+  line-height: 1;
+  border-radius: m.radius(sm);
+}
+
+.birthGrid {
+  display: flex;
+  gap: m.fluid(8, 16);
+}
+
+.ageWrap {
+  display: flex;
+  width: m.fluid(96, 106);
+}
+.planCard {
+  transition: opacity 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: m.fluid(12, 24);
+  padding: m.fluid(16, 24);
+  font-size: m.fluid(18, 20);
+  border-radius: m.radius(lg);
+  background: #fff;
+  box-shadow: inset 0 5px 8px rgba(255, 255, 255, 0.3),
+    inset 0 -5px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+  &:has(input:checked) {
+    opacity: 1;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6),
+      inset 0 5px 8px rgba(255, 255, 255, 0.3),
+      inset 0 -5px 8px rgba(0, 0, 0, 0.15);
+  }
+  .input {
+    transform: scale(1.6);
+    @include m.mq(md) {
+      transform: scale(2);
+    }
+  }
+  &:nth-child(1) {
+    background: m.color(select1-50);
+    &:has(input:checked) {
+      background: m.color(select1);
+    }
+  }
+  &:nth-child(2) {
+    background: m.color(select2-50);
+    &:has(input:checked) {
+      background: m.color(select2);
+    }
+  }
+}
+.planText {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  text-align: center;
+  .planTitle {
+    font-size: m.fluid(20, 30);
+    font-weight: 600;
+    line-height: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: m.fluid(12, 16);
+    margin-bottom: m.fluid(4, 6);
+    color: #fff;
+  }
+  .planPrice {
+    font-size: m.fluid(14, 16);
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+  }
+}

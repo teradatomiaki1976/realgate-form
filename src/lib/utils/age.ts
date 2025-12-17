@@ -1,14 +1,12 @@
-// src/lib/utils/age.ts
-
 export const calcAge = (
   year: string,
   month: string,
   day: string
-): number | null => {
-  if (!year || !month || !day) return null;
+): number | undefined => {
+  if (!year || !month || !day) return undefined;
 
   const birth = new Date(`${year}/${month}/${day}`);
-  if (isNaN(birth.getTime())) return null;
+  if (isNaN(birth.getTime())) return undefined;
 
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();

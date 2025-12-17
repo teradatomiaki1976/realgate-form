@@ -1,0 +1,11 @@
+@use "@/styles/mixins" as m;
+@use "@/styles/tokens" as t;
+
+.wrapper {
+  background: var(--color-bg, #f9f9f9);
+  padding-block: m.space(32);
+
+  @include m.mq(md) {
+    padding-block: m.space(48);
+  }
+}

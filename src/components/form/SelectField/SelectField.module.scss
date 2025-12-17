@@ -1,0 +1,18 @@
+@use "@/styles/mixins" as m;
+@use "@/styles/tokens" as t;
+
+.field {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: m.fluid(8, 16);
+  height: 52px;
+  padding: 0 8px;
+  font-size: m.fluid(18, 20);
+  border: 1px solid #bbb;
+  border-radius: m.radius(md);
+  background: #fff;
+  select {
+    width: 100%;
+  }
+}
