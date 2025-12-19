@@ -6,6 +6,7 @@ import { ReactNode, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ZipField from "@/components/form/ZipField/ZipField";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { applySchema } from "@/lib/validation/apply.schema";
 import type { ApplyFormValues } from "@/lib/validation/apply.schema";
@@ -672,18 +673,28 @@ export default function ApplyForm() {
               { label: "ある", value: "yes" },
             ]}
           />
-          {hasOtherInsurance === "yes" && (
-            <div className={s.inner}>
-              <TextField name="otherInsurance.company" label="会社名" />
-              <TextField name="otherInsurance.type" label="保険種類" />
-              <TextField name="otherInsurance.amount" label="保険金額" />
-              <TextField name="otherInsurance.expire" label="満期日" />
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {hasOtherInsurance === "yes" && (
+              <motion.div
+                className={s.inner}
+                initial={{ opacity: 0, height: 0, y: -8 }}
+                animate={{ opacity: 1, height: "auto", y: 0 }}
+                exit={{ opacity: 0, height: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <TextField name="otherInsurance.company" label="会社名" />
+                <TextField name="otherInsurance.type" label="保険種類" />
+                <TextField name="otherInsurance.amount" label="保険金額" />
+                <TextField name="otherInsurance.expire" label="満期日" />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </SectionCard>
 
-        <div className={s.formBtn}>
-          <button type="submit">確認画面へ</button>
+        <div className={s.formBtns}>
+          <button className={s.nextBtn} type="submit">
+            確認画面へ
+          </button>
         </div>
       </form>
     </FormProvider>

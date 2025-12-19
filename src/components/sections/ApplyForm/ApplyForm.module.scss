@@ -180,3 +180,20 @@
     color: #fff;
   }
 }
+
+.formBtns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-block: m.fluid(20, 40);
+  .nextBtn {
+    cursor: pointer;
+    font-size: m.fluid(20, 24);
+    font-weight: 600;
+    color: #fff;
+    border-radius: m.radius(pill);
+    background: m.color(primary);
+    padding-block: m.fluid(8, 12);
+    width: min(360px, 80%);
+  }
+}
