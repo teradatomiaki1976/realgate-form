@@ -12,9 +12,10 @@
   height: 52px;
   padding: 0 m.fluid(8, 12);
   font-size: m.fluid(18, 20);
-  border: 1px solid #bbb;
   border-radius: m.radius(md);
+  border: 1px solid #bbb;
   background: #fff;
+  transition: background 0.2s ease, border-color 0.2s ease;
 
   &::placeholder {
     color: #bbb;
@@ -23,7 +24,12 @@
 
   &:focus {
     outline: none;
-    border-color: m.color(primary);
+    border: 2px solid m.color(primary);
+    background: m.color(primary-10);
+  }
+
+  &:not(:placeholder-shown) {
+    background: m.color(primary-50);
   }
 }
 

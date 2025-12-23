@@ -14,18 +14,25 @@
   padding: m.fluid(20, 64);
 }
 
-.title {
+.head {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: m.fluid(8, 16);
-  font-size: m.fluid(24, 40);
   margin-top: 0;
   margin-bottom: m.fluid(40, 64);
   text-align: center;
   line-height: 1;
   padding-bottom: m.fluid(24, 32);
   border-bottom: 1px solid m.color(border);
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: m.fluid(8, 16);
+  font-size: m.fluid(24, 40);
   .icon {
     display: inline-flex;
     line-height: 1;
@@ -33,6 +40,11 @@
     font-size: m.fluid(40, 48);
     color: m.color(primary);
   }
+}
+.sub {
+  display: block;
+  font-weight: 600;
+  letter-spacing: 0.1em;
 }
 
 .body {
@@ -196,4 +208,15 @@
     padding-block: m.fluid(8, 12);
     width: min(360px, 80%);
   }
+}
+
+.subField {
+  display: flex;
+  width: 200px;
+  height: 52px;
+  padding: 0 8px;
+  font-size: m.fluid(18, 20);
+  border: 1px solid #bbb;
+  border-radius: m.radius(md);
+  background: #fff;
 }
