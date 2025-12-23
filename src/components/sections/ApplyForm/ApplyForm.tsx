@@ -255,7 +255,7 @@ export default function ApplyForm() {
   // -------------------- hasOtherInsurance --------------------
 
   const hasOtherInsurance = methods.watch("hasOtherInsurance");
-  const needConsenter = !isInsuredSameAsMember;
+  const needConsenter = isInsuredSameAsMember;
 
   return (
     <FormProvider {...methods}>

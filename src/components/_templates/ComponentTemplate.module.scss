@@ -1,7 +1,0 @@
-@use "@/styles/mixins" as m;
-@use "@/styles/tokens" as t;
-
-.root {
-  @include m.section-space();
-  // @include m.section-space($type: "no-margin");
-}
