@@ -209,14 +209,7 @@
     width: min(360px, 80%);
   }
 }
-
-.subField {
-  display: flex;
-  width: 200px;
-  height: 52px;
-  padding: 0 8px;
-  font-size: m.fluid(18, 20);
-  border: 1px solid #bbb;
-  border-radius: m.radius(md);
-  background: #fff;
+.wrap2 {
+  display: grid;
+  gap: m.fluid(8, 16);
 }

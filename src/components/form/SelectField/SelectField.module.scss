@@ -14,5 +14,8 @@
   background: #fff;
   select {
     width: 100%;
+    &:focus {
+      outline: none;
+    }
   }
 }

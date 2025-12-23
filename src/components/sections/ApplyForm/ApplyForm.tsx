@@ -546,16 +546,18 @@ export default function ApplyForm() {
             </div>
           </div>
 
-          <div className={s.wrap}>
+          <div className={s.wrap2}>
             <h3 className={s.subtitle}>
               ご利用施設について<span className={s.required}>必須</span>
             </h3>
-            <p className={s.note}>法人名を選択してください。</p>
-            <SelectField
-              name="insured.corporation"
-              options={corpOptions}
-              required
-            />
+            <div className={s.wrap}>
+              <p className={s.note}>法人名を選択してください。</p>
+              <SelectField
+                name="insured.corporation"
+                options={corpOptions}
+                required
+              />
+            </div>
 
             {/* 法人：その他 */}
             <AnimatePresence initial={false}>
@@ -586,14 +588,16 @@ export default function ApplyForm() {
                   exit={{ opacity: 0, height: 0, y: -6 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
                 >
-                  <p className={s.note}>
-                    次に所在地（都道府県）を選択してください。
-                  </p>
-                  <SelectField
-                    name="insured.prefecture"
-                    options={prefOptions}
-                    required
-                  />
+                  <div className={s.wrap}>
+                    <p className={s.note}>
+                      次に所在地（都道府県）を選択してください。
+                    </p>
+                    <SelectField
+                      name="insured.prefecture"
+                      options={prefOptions}
+                      required
+                    />
+                  </div>
 
                   <AnimatePresence initial={false}>
                     {!!pref && (
@@ -603,14 +607,16 @@ export default function ApplyForm() {
                         exit={{ opacity: 0, height: 0, y: -6 }}
                         transition={{ duration: 0.25, ease: "easeOut" }}
                       >
-                        <p className={s.note}>
-                          ご利用施設名を選択してください。
-                        </p>
-                        <SelectField
-                          name="insured.facilityName"
-                          options={facilityOptions}
-                          required
-                        />
+                        <div className={s.wrap}>
+                          <p className={s.note}>
+                            ご利用施設名を選択してください。
+                          </p>
+                          <SelectField
+                            name="insured.facilityName"
+                            options={facilityOptions}
+                            required
+                          />
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -729,47 +735,37 @@ export default function ApplyForm() {
 
         {/* -------------------- 補償開始日 -------------------- */}
         <SectionCard title="補償開始日" icon={<AiFillSchedule />}>
-          <RadioGroup
-            name="startDateType"
-            required
-            options={[
-              { label: "翌月1日から", value: "next_month" },
-              { label: "その他の開始日", value: "other" },
-            ]}
-          />
-          <AnimatePresence initial={false}>
-            {startDateType === "other" && (
-              <motion.div
-                initial={{ opacity: 0, height: 0, y: -8 }}
-                animate={{ opacity: 1, height: "auto", y: 0 }}
-                exit={{ opacity: 0, height: 0, y: -8 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                style={{ overflow: "hidden" }} // ★高さアニメの時に必須級
-              >
-                <div className={s.subField}>
-                  <select
-                    id="startDateValue"
-                    className={s.select}
-                    {...register("startDateValue")}
-                    defaultValue=""
-                  >
-                    <option value="" disabled>
-                      選択してください
-                    </option>
-                    {monthOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <p className={s.note}>
-            ※
-            毎月20日までにお申し込みが完了した場合、当月または翌月から補償が開始されます
-          </p>
+          <div className={s.wrap2}>
+            <RadioGroup
+              name="startDateType"
+              required
+              options={[
+                { label: "翌月1日から", value: "next_month" },
+                { label: "その他の開始日", value: "other" },
+              ]}
+            />
+            <AnimatePresence initial={false}>
+              {startDateType === "other" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -8 }}
+                  animate={{ opacity: 1, height: "auto", y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -8 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <SelectField
+                    name="startDateValue"
+                    options={monthOptions}
+                    required
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <p className={s.note}>
+              ※
+              毎月20日までにお申し込みが完了した場合、当月または翌月から補償が開始されます
+            </p>
+          </div>
         </SectionCard>
 
         {/* -------------------- 他の保険 -------------------- */}

@@ -5,7 +5,7 @@ export default function Header() {
   return (
     <header className={s.header}>
       <Container>
-        <div className={s.inner}>申込みフォーム</div>
+        <div className={s.inner}>（仮名）申込みフォーム</div>
       </Container>
     </header>
   );
