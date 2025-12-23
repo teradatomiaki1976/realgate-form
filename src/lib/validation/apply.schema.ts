@@ -18,7 +18,7 @@ export const memberSchema = z.object({
   addressKana2: z.string().optional(),
   tel1: z.string().min(1),
   tel2: z.string().min(1),
-  tel3: z.string().min(1),
+  email: z.string().optional(),
   relationshipType: z.string().min(1),
   relationshipNote: z.string().optional(),
 });
@@ -36,8 +36,11 @@ export const insuredSchema = memberSchema
     age: true,
   })
   .extend({
-    facilitySelect: z.string().min(1),
+    corporation: z.string().optional(),
+    prefecture: z.string().optional(),
+    facilityName: z.string().optional(),
     facilityOther: z.string().optional(),
+    facilitySelect: z.string(),
   });
 
 export const consenterSchema = z.object({
@@ -52,7 +55,7 @@ export const consenterSchema = z.object({
   addressKana2: z.string().optional(),
   addressKana3: z.string().optional(),
   tel: z.string().optional(),
-  email: z.string().optional(),
+
   relationshipType: z.string().optional(),
   relationshipNote: z.string().optional(),
 });

@@ -1,5 +1,5 @@
-@use "@/styles/tokens" as t;
-@use "@/styles/mixins" as m;
+@use "../mixins" as m;
+@use "../tokens" as t;
 
 /* =====================================
    Headings / Typography Mixins

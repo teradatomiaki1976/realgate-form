@@ -111,22 +111,40 @@ $z-index: (
 );
 
 /* ---------------------------------------------
-   CSS Variables（必要分だけ吐く）
+   Getters（m.color() とかが map.get を隠蔽する用）
 --------------------------------------------- */
-:root {
-  --font-body: "Noto Sans JP", sans-serif;
+@function bp($key) {
+  @return map.get($breakpoints, $key);
+}
 
-  --color-primary: #{map.get($colors, primary)};
-  --color-text: #{map.get($colors, text)};
-  --color-bg: #{map.get($colors, bg)};
-  --color-border: #{map.get($colors, border)};
+@function container($key) {
+  @return map.get($container, $key);
+}
 
-  --container-max: #{map.get($container, max)};
-  --container-pad: #{map.get($container, pad)};
+@function color($key) {
+  @return map.get($colors, $key);
+}
 
-  --radius-md: #{map.get($radii, md)};
+@function space($key) {
+  @return map.get($space, $key);
+}
 
-  --shadow-md: #{map.get($shadows, md)};
+@function font-size($key) {
+  @return map.get($font-sizes, $key);
+}
 
-  --motion-normal: #{map.get($motion, normal)};
+@function radius($key) {
+  @return map.get($radii, $key);
+}
+
+@function shadow($key) {
+  @return map.get($shadows, $key);
+}
+
+@function motion($key) {
+  @return map.get($motion, $key);
+}
+
+@function z($key) {
+  @return map.get($z-index, $key);
 }

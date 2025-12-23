@@ -15,7 +15,8 @@ type Props = {
   name: string;
   options: Option[];
   required?: boolean;
-  defaultValue?: string; // ★追加
+  defaultValue?: string;
+  disabled?: boolean;
 };
 
 export default function SelectField({

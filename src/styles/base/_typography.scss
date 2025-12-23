@@ -1,5 +1,5 @@
-@use "@/styles/tokens" as t;
-@use "@/styles/mixins" as m;
+@use "../mixins" as m;
+@use "../tokens" as t;
 
 /* -----------------------------------
    全見出しの共通設定

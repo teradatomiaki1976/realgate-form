@@ -1,7 +1,25 @@
-@use "@/styles/tokens" as *;
-@use "@/styles/mixins" as m;
+/* src/styles/globals.scss */
 
-@forward "@/styles/reset";
-@forward "@/styles/base/base";
-@forward "@/styles/base/typography";
-@forward "@/styles/base/utilities";
+/* forward は必ず先頭 */
+@forward "./reset";
+@forward "./base/base";
+@forward "./base/typography";
+@forward "./base/utilities";
+
+@use "./tokens" as t;
+
+:root {
+  --color-primary: #{t.color(primary)};
+  --color-text: #{t.color(text)};
+  --color-bg: #{t.color(bg)};
+  --color-border: #{t.color(border)};
+
+  --container-max: #{t.container(max)};
+  --container-pad: #{t.container(pad)};
+
+  --radius-md: #{t.radius(md)};
+
+  --shadow-md: #{t.shadow(md)};
+
+  --motion-normal: #{t.motion(normal)};
+}

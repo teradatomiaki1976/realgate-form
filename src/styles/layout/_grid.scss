@@ -1,4 +1,5 @@
-@use "styles/mixins" as *;
+@use "../mixins" as m;
+@use "../tokens" as t;
 
 /* ------------------------------
    Responsive Grids
@@ -8,7 +9,7 @@
 .grid-2 {
   display: grid;
   gap: 24px;
-  @include mq(md) {
+  @include m.mq(md) {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -17,14 +18,14 @@
 .grid-3 {
   display: grid;
   gap: 24px;
-  @include mq(md) {
+  @include m.mq(md) {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* 画像＋テキストの左右反転用 */
 .grid-reverse {
-  @include mq(md) {
+  @include m.mq(md) {
     grid-auto-flow: dense;
     & > :first-child {
       order: 2;

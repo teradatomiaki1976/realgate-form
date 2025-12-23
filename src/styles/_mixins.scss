@@ -1,6 +1,6 @@
 @use "sass:map";
 @use "sass:math";
-@use "@/styles/tokens" as t;
+@use "./tokens" as t;
 
 /* rem変換 */
 @function rem($px) {

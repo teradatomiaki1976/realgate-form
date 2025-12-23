@@ -96,9 +96,6 @@ export default function ApplyForm() {
         birthYear: defaultBirthYear,
         birthMonth: defaultBirthMonth,
         birthDay: defaultBirthDay,
-        age:
-          calcAge(defaultBirthYear, defaultBirthMonth, defaultBirthDay) ??
-          undefined,
         postalCode: "",
         address1: "",
         address2: "",
@@ -106,7 +103,7 @@ export default function ApplyForm() {
         addressKana2: "",
         tel1: "",
         tel2: "",
-        tel3: "",
+        email: "",
         relationshipType: "本人",
         relationshipNote: "",
       },
@@ -119,11 +116,6 @@ export default function ApplyForm() {
         birthYear: defaultBirthYear,
         birthMonth: defaultBirthMonth,
         birthDay: defaultBirthDay,
-        age:
-          calcAge(defaultBirthYear, defaultBirthMonth, defaultBirthDay) ??
-          undefined,
-        facilitySelect: "",
-        facilityOther: "",
       },
       consenter: {
         lastName: "",
@@ -137,7 +129,6 @@ export default function ApplyForm() {
         addressKana2: "",
         addressKana3: "",
         tel: "",
-        email: "",
         relationshipType: "",
         relationshipNote: "",
       },
@@ -154,11 +145,29 @@ export default function ApplyForm() {
     },
   });
 
-  const [sameAsMember, setSameAsMember] = useState(false);
+  const corpOptions = [
+    { label: "法人A", value: "corp_a" },
+    { label: "法人B", value: "corp_b" },
+    { label: "その他（一覧にない）", value: "other" },
+  ];
+
+  const prefOptions = [
+    { label: "東京都", value: "tokyo" },
+    { label: "大阪府", value: "osaka" },
+  ];
+
+  const facilityOptions = [
+    { label: "〇〇ケアセンター", value: "facility_1" },
+    { label: "△△ホーム", value: "facility_2" },
+  ];
+
+  const [isInsuredSameAsMember, setIsInsuredSameAsMember] = useState(false);
 
   const {
     register,
     handleSubmit,
+    watch,
+    resetField,
     formState: { errors },
   } = methods;
 
@@ -197,24 +206,45 @@ export default function ApplyForm() {
   }, [insuredBirthYear, insuredBirthMonth, insuredBirthDay, methods]);
 
   useEffect(() => {
-    if (!sameAsMember) return;
+    if (isInsuredSameAsMember) {
+      const member = methods.getValues("member");
 
-    const member = methods.getValues("member");
+      methods.setValue("insured.lastName", member.lastName ?? "");
+      methods.setValue("insured.firstName", member.firstName ?? "");
+      methods.setValue("insured.lastNameKana", member.lastNameKana ?? "");
+      methods.setValue("insured.firstNameKana", member.firstNameKana ?? "");
+      methods.setValue("insured.gender", member.gender ?? "");
+      methods.setValue("insured.birthYear", member.birthYear ?? "");
+      methods.setValue("insured.birthMonth", member.birthMonth ?? "");
+      methods.setValue("insured.birthDay", member.birthDay ?? "");
+      methods.setValue("insured.age", member.age);
+    } else {
+      resetField("insured");
+    }
+  }, [isInsuredSameAsMember, methods, resetField]);
 
-    methods.setValue("insured", {
-      lastName: member.lastName ?? "",
-      firstName: member.firstName ?? "",
-      lastNameKana: member.lastNameKana ?? "",
-      firstNameKana: member.firstNameKana ?? "",
-      gender: member.gender ?? "",
-      birthYear: member.birthYear ?? "",
-      birthMonth: member.birthMonth ?? "",
-      birthDay: member.birthDay ?? "",
-      age: member.age,
-      facilitySelect: "",
-      facilityOther: "",
-    });
-  }, [sameAsMember, methods]);
+  // -------------------- 施設名 --------------------
+  const corp = watch("insured.corporation");
+  const pref = watch("insured.prefecture");
+  useEffect(() => {
+    // 法人が変わったら全部リセット（まず事故防止）
+    methods.setValue("insured.prefecture", "");
+    methods.setValue("insured.facilityName", "");
+    methods.setValue("insured.facilityOther", "");
+
+    // もし「その他（一覧にない）」選んだら、下流は全部使わないのでここで終了
+    // （この if は “明示的に意図を示す” だけで、なくても動く）
+    if (corp === "other") return;
+  }, [corp, methods]);
+
+  useEffect(() => {
+    // 都道府県が変わったら、施設と入力をリセット
+    methods.setValue("insured.facilityName", "");
+    methods.setValue("insured.facilityOther", "");
+  }, [pref, methods]);
+
+  const facility = watch("insured.facilityName");
+  const isCorpOther = corp === "other";
 
   // -------------------- submit --------------------
 
@@ -225,6 +255,7 @@ export default function ApplyForm() {
   // -------------------- hasOtherInsurance --------------------
 
   const hasOtherInsurance = methods.watch("hasOtherInsurance");
+  const needConsenter = !isInsuredSameAsMember;
 
   return (
     <FormProvider {...methods}>
@@ -300,18 +331,6 @@ export default function ApplyForm() {
           </div>
           <div className={s.wrap}>
             <h3 className={s.subtitle}>
-              年齢<span className={s.required}>必須</span>
-            </h3>
-            <div className={s.ageWrap}>
-              <SelectField
-                name="member.age"
-                options={generateAges()}
-                required
-              />
-            </div>
-          </div>
-          <div className={s.wrap}>
-            <h3 className={s.subtitle}>
               住所<span className={s.required}>必須</span>
             </h3>
             <div className={s.inner}>
@@ -353,7 +372,7 @@ export default function ApplyForm() {
             </h3>
             <div className={s.inner}>
               <TextField
-                label="電話番号1"
+                label="電話番号1（日中連絡が取れる番号）"
                 name="member.tel1"
                 placeholder="09012345678"
                 required
@@ -362,35 +381,31 @@ export default function ApplyForm() {
                 label="電話番号2"
                 name="member.tel2"
                 placeholder="09012345678"
-                required
               />
               <TextField
-                label="電話番号3"
-                name="member.tel3"
-                placeholder="09012345678"
-                required
+                label="メールアドレス"
+                name="member.email"
+                placeholder="aaabbbccc@ddd.ne.jp"
               />
             </div>
           </div>
           <div className={s.wrap}>
             <h3 className={s.subtitle}>
-              続柄<span className={s.required}>必須</span>
+              被保険者との続柄<span className={s.required}>必須</span>
             </h3>
             <div className={s.inner}>
               <RadioGroup
-                label="続柄"
                 name="member.relationshipType"
                 required
                 options={[
                   { label: "本人", value: "本人" },
                   { label: "親族", value: "親族" },
-                  { label: "その他", value: "その他" },
                 ]}
               />
               <TextField
-                label="備考（その他の場合）"
+                label="親族の場合、以下に関係性をご記入お願いします"
                 name="member.relationshipNote"
-                placeholder="続柄を入力"
+                placeholder="息子、娘、兄弟、等"
               />
             </div>
           </div>
@@ -410,8 +425,8 @@ export default function ApplyForm() {
                 <input
                   type="checkbox"
                   className={s.input}
-                  checked={sameAsMember}
-                  onChange={(e) => setSameAsMember(e.target.checked)}
+                  checked={isInsuredSameAsMember}
+                  onChange={(e) => setIsInsuredSameAsMember(e.target.checked)}
                 />
                 会員（加入者）と同じ内容
               </label>
@@ -425,13 +440,13 @@ export default function ApplyForm() {
                 name="insured.lastName"
                 placeholder="姓"
                 required
-                disabled={sameAsMember}
+                disabled={isInsuredSameAsMember}
               />
               <TextField
                 name="insured.firstName"
                 placeholder="名"
                 required
-                disabled={sameAsMember}
+                disabled={isInsuredSameAsMember}
               />
             </div>
           </div>
@@ -447,13 +462,13 @@ export default function ApplyForm() {
                 name="insured.lastNameKana"
                 placeholder="セイ"
                 required
-                disabled={sameAsMember}
+                disabled={isInsuredSameAsMember}
               />
               <TextField
                 name="insured.firstNameKana"
                 placeholder="メイ"
                 required
-                disabled={sameAsMember}
+                disabled={isInsuredSameAsMember}
               />
             </div>
           </div>
@@ -497,46 +512,80 @@ export default function ApplyForm() {
             </div>
           </div>
 
-          {/* 年齢（自動） */}
-          <div className={s.wrap}>
-            <h3 className={s.subtitle}>
-              年齢<span className={s.required}>必須</span>
-            </h3>
-            <div className={s.ageWrap}>
-              <SelectField
-                name="insured.age"
-                options={generateAges()}
-                required
-              />
-            </div>
-          </div>
-
           {/* 施設名（選択） */}
           <div className={s.wrap}>
             <h3 className={s.subtitle}>
-              施設名（選択）<span className={s.required}>必須</span>
+              ご利用施設について<span className={s.required}>必須</span>
             </h3>
             <SelectField
-              name="insured.facilitySelect"
-              options={[
-                { label: "施設A", value: "facility_a" },
-                { label: "施設B", value: "facility_b" },
-                { label: "その他", value: "other" },
-              ]}
+              name="insured.corporation"
+              options={corpOptions}
               required
             />
-          </div>
+            <p className={s.help}>施設を探すため、法人名を選択してください。</p>
 
-          {/* 施設名（その他） */}
-          <div className={s.wrap}>
-            <TextField
-              label="施設名（入力）※選択項目に無い場合"
-              name="insured.facilityOther"
-              placeholder="施設名を入力"
-            />
+            {/* ★ 法人が「その他」の場合：入力だけ出す */}
+            <AnimatePresence initial={false}>
+              {isCorpOther && (
+                <motion.div
+                  className={s.inner}
+                  initial={{ opacity: 0, height: 0, y: -6 }}
+                  animate={{ opacity: 1, height: "auto", y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -6 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  <TextField
+                    label="施設名（入力）※一覧に無い場合"
+                    name="insured.facilityOther"
+                    placeholder="施設名を入力"
+                    required
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* ★ 法人が通常選択の場合だけ：都道府県 → 施設 の段階表示 */}
+            <AnimatePresence initial={false}>
+              {!!corp && !isCorpOther && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -6 }}
+                  animate={{ opacity: 1, height: "auto", y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -6 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  {/* ② 都道府県 */}
+                  <SelectField
+                    name="insured.prefecture"
+                    options={prefOptions}
+                    required
+                  />
+                  <p className={s.help}>
+                    次に施設の所在地（都道府県）を選択してください。
+                  </p>
+
+                  <AnimatePresence initial={false}>
+                    {!!pref && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, y: -6 }}
+                        animate={{ opacity: 1, height: "auto", y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -6 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                      >
+                        {/* ③ 施設 */}
+                        <SelectField
+                          name="insured.facilityName"
+                          options={facilityOptions}
+                          required
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </SectionCard>
-        {sameAsMember && (
+        {needConsenter && (
           <SectionCard title="同意者情報" icon={<BsFillPeopleFill />}>
             <div className={s.wrap}>
               <h3 className={s.subtitle}>
