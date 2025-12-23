@@ -13,7 +13,7 @@ const bodyFont = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: "保険申し込みフォーム",
-  description: "リアルゲート案件：保険申し込みフォーム",
+  description: "保険申し込みフォーム",
 };
 
 export default function RootLayout({
