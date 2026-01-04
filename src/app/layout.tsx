@@ -1,5 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
+import Header from "@/components/layout/Header/Header";
+import Footer from "@/components/layout/Footer/Footer";
 import "@/styles/globals.scss";
 import { Noto_Sans_JP } from "next/font/google";
 
@@ -12,8 +14,8 @@ const bodyFont = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "保険申し込みフォーム",
-  description: "保険申し込みフォーム",
+  title: "わたしのお守り総合補償制度 お申込み",
+  description: "説明文言が入ります",
 };
 
 export default function RootLayout({
@@ -23,7 +25,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" className={bodyFont.variable}>
-      <body>{children}</body>
+      <body className={bodyFont.className}>
+        <Header />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

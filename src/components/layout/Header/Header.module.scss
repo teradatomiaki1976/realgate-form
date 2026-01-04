@@ -4,10 +4,32 @@
 .header {
   background: #fff;
   padding-block: m.fluid(40, 80);
+  text-align: center;
+}
 
-  .inner {
-    font-size: m.fluid(32, 40);
-    text-align: center;
+.kicker {
+  font-size: m.fluid(16, 24);
+  font-weight: 600;
+  margin-bottom: m.fluid(4, 6);
+  background: m.color(primary);
+  border-radius: m.radius(pill);
+  color: #fff;
+  display: block;
+  padding-inline: m.fluid(18, 24);
+  @include m.mq(md) {
+    display: inline-block;
+  }
+}
+
+.title {
+  font-size: m.fluid(28, 48);
+  font-weight: 800;
+  margin-bottom: 18px;
+  .span {
+    font-size: m.fluid(24, 32);
+    display: block;
     font-weight: 600;
+    margin-top: m.fluid(4, 6);
+    letter-spacing: 0.1em;
   }
 }
