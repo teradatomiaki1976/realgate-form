@@ -15,16 +15,19 @@
   border-radius: m.radius(pill);
   color: #fff;
   display: block;
-  padding-inline: m.fluid(18, 24);
-  @include m.mq(md) {
-    display: inline-block;
-  }
+  padding-block: m.space(4);
+  padding-inline: m.fluid(18, 40);
+  width: 100%;
 }
 
 .title {
   font-size: m.fluid(28, 48);
   font-weight: 800;
   margin-bottom: 18px;
+  margin-block: m.fluid(16, 24);
+  margin-inline: auto;
+  width: min(800px, 100%);
+  height: auto;
   .span {
     font-size: m.fluid(24, 32);
     display: block;
