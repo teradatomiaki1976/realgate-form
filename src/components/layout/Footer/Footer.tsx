@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className={s.footer}>
       <Container>
-        <p className={s.copy}>© copyright</p>
+        <p className={s.copy}>© 2026 株式会社グリット</p>
       </Container>
     </footer>
   );

@@ -1,6 +1,13 @@
 @use "@/styles/mixins" as m;
 @use "@/styles/tokens" as t;
 
+.br {
+  display: block;
+  @include m.mq(sp) {
+    display: none;
+  }
+}
+
 .noteBox {
   background: m.color(check);
   border-radius: m.radius(lg);
@@ -58,6 +65,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
+  position: relative;
+  &::before {
+    content: "A";
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    font-size: 140px;
+    font-weight: 800;
+    opacity: 0.15;
+  }
   &:hover {
     opacity: 0.8;
   }
@@ -66,6 +84,9 @@
   }
   &:nth-child(2) {
     background: m.color(select2-50);
+    &::before {
+      content: "B";
+    }
   }
 }
 
@@ -292,10 +313,11 @@
 }
 
 .contact {
-  max-width: 980px;
-  margin: 0 auto;
+  margin: m.fluid(40, 80) auto 0;
   text-align: center;
-  padding-top: 22px;
+  padding: m.fluid(20, 40);
+  background: m.color(surface);
+  border-radius: m.radius(lg);
 }
 
 .contactTitle {
@@ -305,39 +327,42 @@
 }
 
 .contactLead {
-  margin-bottom: 16px;
+  margin-bottom: m.fluid(16, 18);
 }
 
 .contactGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: m.fluid(16, 18);
 }
 
 .contactCard {
-  border: 2px solid #999;
-  border-radius: 14px;
-  padding: 16px;
+  border: 1px solid m.color(text);
+  border-radius: m.radius(lg);
+  padding-block: m.fluid(16, 18);
   background: #fff;
 }
 
 .contactLabel {
-  font-weight: 800;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  display: inline-block;
+  border-bottom: 1px solid m.color(text);
 }
 
 .contactMain {
   display: inline-block;
-  font-size: 20px;
-  font-weight: 900;
-  text-decoration: none;
-  color: #111;
+  font-size: m.fluid(24, 30);
+  font-weight: 600;
+  .span {
+    font-size: m.fluid(16, 20);
+    margin-right: 4px;
+  }
 }
 
 .contactSub {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #333;
+  font-size: m.fluid(14, 16);
+  line-height: 1;
 }
 
 @media (max-width: 820px) {
@@ -400,5 +425,5 @@
 }
 
 .emptyDesc {
-  font-size: m.fluid(14, 16);
+  font-size: m.fluid(12, 16);
 }

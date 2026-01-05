@@ -8,6 +8,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 // react-icons
 import { FaHome } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa";
+import { FaPeopleRobbery } from "react-icons/fa6";
 
 type Situation = "home" | "facility" | null;
 type BankReg = "yes" | "no" | null;
@@ -24,28 +25,28 @@ type ContentSet = {
 
 const CONTENT: Record<"home" | "facilityNo" | "facilityYes", ContentSet> = {
   home: {
-    requestCtaHref: "/request", // 無料資料請求
+    requestCtaHref: "https://jlsa-net.jp/form_syogai/", // 無料資料請求
     pdfHref: "/pdf/home.pdf",
     pdfLabel: "パンフレットを見る（PDF）",
-    youtubeId: "XXXXXXXXXXX",
+    youtubeId: "FSyRWvX5Drs",
     youtubeTitle: "在宅向け 説明動画",
     pdfThumb: "/images/thumb/home_pdf.png",
     videoThumb: "/images/thumb/home_video.png",
   },
   facilityNo: {
-    requestCtaHref: "/request",
-    pdfHref: "/pdf/facility-no.pdf",
+    requestCtaHref: "https://jlsa-net.jp/form_syogai/",
+    pdfHref: "/pdf/facility.pdf",
     pdfLabel: "パンフレットを見る（PDF）",
-    youtubeId: "YYYYYYYYYYY",
+    youtubeId: "FSyRWvX5Drs",
     youtubeTitle: "施設（登録なし）向け 説明動画",
     pdfThumb: "/images/thumb/facility-no_pdf.png",
     videoThumb: "/images/thumb/facility-no_video.png",
   },
   facilityYes: {
-    requestCtaHref: "/request",
-    pdfHref: "/pdf/facility-yes.pdf",
+    requestCtaHref: "https://jlsa-net.jp/form_syogai/",
+    pdfHref: "/pdf/facility.pdf",
     pdfLabel: "パンフレットを見る（PDF）",
-    youtubeId: "ZZZZZZZZZZZ",
+    youtubeId: "FSyRWvX5Drs",
     youtubeTitle: "施設（登録あり）向け 説明動画",
     pdfThumb: "/images/thumb/facility-yes_pdf.png",
     videoThumb: "/images/thumb/facility-yes_video.png",
@@ -140,7 +141,7 @@ export default function ApplyTop() {
               在宅で生活<span className={s.span}>している</span>
             </span>
             <span className={s.tabSub}>
-              書面でのお手続き（資料請求）になります
+              （書面でのお手続き（資料請求）になります）
             </span>
             <span className={s.chev} aria-hidden>
               <FaChevronDown />
@@ -160,7 +161,7 @@ export default function ApplyTop() {
               入居(入所)<span className={s.span}>している</span>
             </span>
             <span className={s.tabSub}>
-              条件によってネットお申込みが可能です
+              （条件によってネットお申込みが可能です）
             </span>
             <span className={s.chev} aria-hidden>
               <FaChevronDown />
@@ -180,10 +181,14 @@ export default function ApplyTop() {
               <motion.div key="empty" {...fade}>
                 <div className={s.emptyState}>
                   <p className={s.emptyTitle}>
-                    まずは上のボタンからご状況をお選びください
+                    まずは上のボタンからご状況を
+                    <br className={s.br} />
+                    お選びください
                   </p>
                   <p className={s.emptyDesc}>
-                    該当するボタンを選択すると、手続き案内が表示されます。
+                    該当するボタンを選択すると、
+                    <br className={s.br} />
+                    手続き案内が表示されます
                   </p>
                 </div>
               </motion.div>
@@ -230,24 +235,28 @@ export default function ApplyTop() {
 
       {/* --- お問い合わせ --- */}
       <section className={s.contact}>
-        <h2 className={s.contactTitle}>お問い合わせ</h2>
+        <h2 className={s.sectionTitle}>
+          <FaPeopleRobbery />
+          お問い合わせ
+        </h2>
         <p className={s.contactLead}>
-          ご不明な点がありましたら、お気軽にお問い合わせください。
+          ご不明な点がありましたら、 <br className={s.br} />
+          お気軽にお問い合わせください。
         </p>
 
         <div className={s.contactGrid}>
           <div className={s.contactCard}>
             <div className={s.contactLabel}>お電話でのお問い合わせ</div>
-            <a className={s.contactMain} href="tel:0000000000">
-              TEL: 000-0000-0000
+            <a className={s.contactMain} href="tel:0345008480">
+              <span className={s.span}>TEL:</span>03-4500-8480
             </a>
-            <div className={s.contactSub}>受付時間：平日 9時〜17時 mergers</div>
+            <div className={s.contactSub}>【受付時間：平日 9時〜17時】</div>
           </div>
 
           <div className={s.contactCard}>
             <div className={s.contactLabel}>メールでのお問い合わせ</div>
             <a className={s.contactMain} href="mailto:info@grit-az.com">
-              MAIL: info@grit-az.com
+              <span className={s.span}>MAIL:</span>info@grit-az.com
             </a>
           </div>
         </div>
@@ -301,7 +310,7 @@ function FacilityGate({
     <div className={s.gateSummary}>
       <div className={s.summaryRow}>
         <div className={s.summaryValue}>
-          ネットバンキング {bankReg === "yes" ? "登録あり" : "登録なし"}
+          ◎ ネットバンキング {bankReg === "yes" ? "登録あり" : "登録なし"}
         </div>
 
         <button type="button" className={s.changeBtn} onClick={onReset}>
