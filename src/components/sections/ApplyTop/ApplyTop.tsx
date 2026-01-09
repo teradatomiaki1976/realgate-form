@@ -25,7 +25,7 @@ type ContentSet = {
 
 const CONTENT: Record<"home" | "facilityNo" | "facilityYes", ContentSet> = {
   home: {
-    requestCtaHref: "https://jlsa-net.jp/form_syogai/", // 無料資料請求
+    requestCtaHref: "https://jlsa-net.jp/form_syogai/",
     pdfHref: "/pdf/home.pdf",
     pdfLabel: "パンフレットを見る（PDF）",
     youtubeId: "FSyRWvX5Drs",
@@ -37,19 +37,19 @@ const CONTENT: Record<"home" | "facilityNo" | "facilityYes", ContentSet> = {
     requestCtaHref: "https://jlsa-net.jp/form_syogai/",
     pdfHref: "/pdf/facility.pdf",
     pdfLabel: "パンフレットを見る（PDF）",
-    youtubeId: "FSyRWvX5Drs",
+    youtubeId: "Vn6ud9kgZNc",
     youtubeTitle: "施設（登録なし）向け 説明動画",
-    pdfThumb: "/images/thumb/facility-no_pdf.png",
-    videoThumb: "/images/thumb/facility-no_video.png",
+    pdfThumb: "/images/thumb/facility_pdf.png",
+    videoThumb: "/images/thumb/facility_video.png",
   },
   facilityYes: {
     requestCtaHref: "https://jlsa-net.jp/form_syogai/",
     pdfHref: "/pdf/facility.pdf",
     pdfLabel: "パンフレットを見る（PDF）",
-    youtubeId: "FSyRWvX5Drs",
+    youtubeId: "Vn6ud9kgZNc",
     youtubeTitle: "施設（登録あり）向け 説明動画",
-    pdfThumb: "/images/thumb/facility-yes_pdf.png",
-    videoThumb: "/images/thumb/facility-yes_video.png",
+    pdfThumb: "/images/thumb/facility_pdf.png",
+    videoThumb: "/images/thumb/facility_video.png",
   },
 };
 
@@ -394,7 +394,7 @@ function OnlineFlow({
           お手続きの前に、パンフレットまたは動画で内容をご確認いただいた上で
           <br />
           <span className={s.span}>
-            「内容を確認しました」のチェックを入れてください
+            「パンフレットを読み、保険の内容を理解しました」のチェックを入れてください
           </span>
         </p>
         <div className={s.mediaGrid}>
@@ -429,7 +429,11 @@ function OnlineFlow({
               checked={confirmed}
               onChange={(e) => onConfirm(e.target.checked)}
             />
-            <span>内容を確認しました</span>
+            <span>
+              パンフレットを読み、
+              <br className={s.br} />
+              保険の内容を理解しました
+            </span>
           </label>
         </div>
 

@@ -282,7 +282,7 @@
 .checkLabel {
   display: flex;
   gap: 10px;
-  align-items: flex-end;
+  align-items: center;
   font-size: m.fluid(16, 18);
   font-weight: 700;
   input {
@@ -376,6 +376,7 @@
 
 .gateSummary {
   margin-bottom: m.fluid(24, 40);
+  display: none;
 }
 
 .summaryRow {
