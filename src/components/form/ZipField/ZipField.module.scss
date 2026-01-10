@@ -36,3 +36,11 @@
   justify-content: center;
   gap: 2px;
 }
+.errorInput {
+  border-color: m.color(red);
+}
+
+.errorText {
+  color: m.color(red);
+  font-size: 14px;
+}

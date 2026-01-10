@@ -1,6 +1,12 @@
 @use "@/styles/mixins" as m;
 @use "@/styles/tokens" as t;
 
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: m.fluid(4, 6);
+}
+
 .field {
   display: flex;
   align-items: center;
@@ -18,4 +24,12 @@
       outline: none;
     }
   }
+}
+.errorInput {
+  border-color: m.color(red);
+}
+
+.errorText {
+  color: m.color(red);
+  font-size: 14px;
 }

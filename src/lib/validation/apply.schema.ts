@@ -3,29 +3,32 @@ import { z } from "zod";
 
 // ---- member ----
 export const memberSchema = z.object({
-  lastName: z.string().min(1, "姓を入力してください"),
-  firstName: z.string().min(1, "名を入力してください"),
-  lastNameKana: z.string().min(1, "セイを入力してください"),
-  firstNameKana: z.string().min(1, "メイを入力してください"),
-  gender: z.string().min(1, "性別を選択してください"),
-  birthYear: z.string().min(1),
-  birthMonth: z.string().min(1),
-  birthDay: z.string().min(1),
+  lastName: z.string().min(1, "必須項目です"),
+  firstName: z.string().min(1, "必須項目です"),
+  lastNameKana: z.string().min(1, "必須項目です"),
+  firstNameKana: z.string().min(1, "必須項目です"),
+  gender: z.string().min(1, "必須項目です"),
+  birthYear: z.string().min(1, "必須項目です"),
+  birthMonth: z.string().min(1, "必須項目です"),
+  birthDay: z.string().min(1, "必須項目です"),
   age: z.number().optional(),
 
-  postalCode: z.string().min(1),
-  address1: z.string().min(1),
-  address2: z.string().min(1),
-  address3: z.string().optional(), // ★ ZipField で使ってるので追加
+  postalCode: z
+    .string()
+    .min(1, "必須項目です")
+    .refine((v) => v.replace(/-/g, "").length === 7, "7桁で入力してください"),
+  address1: z.string().min(1, "必須項目です"),
+  address2: z.string().min(1, "必須項目です"),
+  address3: z.string().optional(),
 
-  addressKana1: z.string().optional(),
-  addressKana2: z.string().optional(),
+  addressKana1: z.string().min(1, "必須項目です"),
+  addressKana2: z.string().min(1, "必須項目です"),
 
-  tel1: z.string().min(1),
-  tel2: z.string().optional(), // ★ フォーム側が任意なら optional に
-  email: z.string().optional(),
+  tel1: z.string().min(1, "必須項目です"),
+  tel2: z.string().optional(),
+  email: z.string().min(1, "必須項目です"),
 
-  relationshipType: z.string().min(1),
+  relationshipType: z.string().min(1, "必須項目です"),
   relationshipNote: z.string().optional(),
 });
 
@@ -44,20 +47,20 @@ export const insuredSchema = memberSchema
     age: true,
   })
   .extend({
-    corporation: z.string().optional(),
-    prefecture: z.string().optional(),
-    facilityName: z.string().optional(),
-    facilityOther: z.string().optional(),
+    corporation: z.string().min(1, "必須項目です"),
+    prefecture: z.string().min(1, "必須項目です"),
+    facilityName: z.string().min(1, "必須項目です"),
+    facilityOther: z.string().min(1, "必須項目です"),
   });
 
 // ---- consenter ----
 export const consenterSchema = z.object({
-  lastName: z.string().optional(),
-  firstName: z.string().optional(),
-  lastNameKana: z.string().optional(),
-  firstNameKana: z.string().optional(),
-  tel: z.string().optional(),
-  relationshipType: z.string().optional(),
+  lastName: z.string().min(1, "必須項目です"),
+  firstName: z.string().min(1, "必須項目です"),
+  lastNameKana: z.string().min(1, "必須項目です"),
+  firstNameKana: z.string().min(1, "必須項目です"),
+  tel: z.string().min(1, "必須項目です"),
+  relationshipType: z.string().min(1, "必須項目です"),
   relationshipNote: z.string().optional(),
 
   address1: z.string().optional(),
@@ -75,9 +78,9 @@ export const applySchema = z
     insured: insuredSchema,
     consenter: consenterSchema,
 
-    plan: z.enum(["simple", "rich"]).optional(), // ★ undefined 初期値に対応
+    plan: z.enum(["simple", "rich"]).optional().catch(undefined),
     startDateType: z.enum(["next_month", "other"]),
-    startDateValue: z.string().optional(), // ★ 追加
+    startDateValue: z.string().optional(),
 
     hasOtherInsurance: z.enum(["yes", "no"]),
     otherInsurance: z.object({
@@ -89,8 +92,59 @@ export const applySchema = z
 
     // checkbox群として扱いやすい
     agreement: z.record(z.string(), z.boolean()).optional(),
+    isInsuredSameAsMember: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
+    if (data.isInsuredSameAsMember) {
+      /* 同意者必須 */
+    }
+    // ---- 続柄：親族のときだけ relationshipNote 必須 ----
+    if (data.member.relationshipType === "親族") {
+      if (
+        !data.member.relationshipNote ||
+        data.member.relationshipNote.trim() === ""
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["member", "relationshipNote"],
+          message: "必須項目です",
+        });
+      }
+    }
+    // ---- 他保険：ある(yes)の時だけ必須 ----
+    if (data.hasOtherInsurance === "yes") {
+      const oi = data.otherInsurance ?? {};
+
+      if (!oi.company || oi.company.trim() === "") {
+        ctx.addIssue({
+          code: "custom",
+          path: ["otherInsurance", "company"],
+          message: "必須項目です",
+        });
+      }
+      if (!oi.type || oi.type.trim() === "") {
+        ctx.addIssue({
+          code: "custom",
+          path: ["otherInsurance", "type"],
+          message: "必須項目です",
+        });
+      }
+      if (!oi.amount || oi.amount.trim() === "") {
+        ctx.addIssue({
+          code: "custom",
+          path: ["otherInsurance", "amount"],
+          message: "必須項目です",
+        });
+      }
+      if (!oi.expire || oi.expire.trim() === "") {
+        ctx.addIssue({
+          code: "custom",
+          path: ["otherInsurance", "expire"],
+          message: "必須項目です",
+        });
+      }
+    }
+
     // ---- plan 必須化 ----
     if (!data.plan) {
       ctx.addIssue({
@@ -169,6 +223,14 @@ export const applySchema = z
           message: "同意者の続柄を選択してください",
         });
       }
+    }
+    if (!data.insured.corporation || data.insured.corporation.trim() === "") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["insured", "corporation"],
+        message: "法人名を選択してください",
+      });
+      return; // ここで止めると下流チェックが暴れにくい
     }
   });
 

@@ -12,12 +12,23 @@ type Option = {
 type Props = {
   label?: string;
   name: string;
-  required?: boolean;
+  required?: boolean; // 見た目用（バリデーションはZodで）
   options: Option[];
+  disabled?: boolean;
 };
 
-export default function RadioGroup({ label, name, required, options }: Props) {
-  const { register } = useFormContext();
+const getByPath = (obj: any, path: string) =>
+  path.split(".").reduce((acc, key) => acc?.[key], obj);
+
+export default function RadioGroup({ label, name, options, disabled }: Props) {
+  const {
+    register,
+    formState: { errors, touchedFields, isSubmitted },
+  } = useFormContext();
+
+  const errorMsg = getByPath(errors, name)?.message as string | undefined;
+  const touched = !!getByPath(touchedFields, name);
+  const showError = !!errorMsg && (touched || isSubmitted);
 
   return (
     <fieldset className={s.field}>
@@ -30,12 +41,16 @@ export default function RadioGroup({ label, name, required, options }: Props) {
               type="radio"
               className={s.input}
               value={opt.value}
-              {...register(name, { required })}
+              disabled={disabled}
+              {...register(name)}
+              aria-invalid={showError}
             />
             {opt.label}
           </label>
         ))}
       </div>
+
+      {showError && <p className={s.errorText}>{errorMsg}</p>}
     </fieldset>
   );
 }

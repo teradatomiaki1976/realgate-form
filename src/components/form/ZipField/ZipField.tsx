@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import s from "./ZipField.module.scss";
-
-// react-icons
 import { IoIosArrowDown } from "react-icons/io";
 
 type Props = {
@@ -15,6 +13,16 @@ type Props = {
   address3Name: string; // member.address3
 };
 
+const getByPath = (obj: any, path: string) =>
+  path.split(".").reduce((acc, key) => acc?.[key], obj);
+
+// 全角数字→半角 + ハイフン除去 + trim
+const normalizeZip = (v: string) =>
+  v
+    .trim()
+    .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+    .replace(/-/g, "");
+
 export default function ZipField({
   name,
   label = "郵便番号",
@@ -22,50 +30,75 @@ export default function ZipField({
   address2Name,
   address3Name,
 }: Props) {
-  const { register, watch, setValue } = useFormContext();
-  const postalCode = watch(name);
+  const {
+    register,
+    watch,
+    setValue,
+    formState: { errors, touchedFields, isSubmitted },
+  } = useFormContext();
+
+  const rawPostal = watch(name) as string | undefined;
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [apiError, setApiError] = useState("");
+
+  const errorMsg = getByPath(errors, name)?.message as string | undefined;
+  const touched = !!getByPath(touchedFields, name);
+  const showError = !!errorMsg && (touched || isSubmitted);
+
+  // auto-search の連打防止（同じ7桁で2回叩かない）
+  const lastSearchedRef = useRef<string>("");
 
   // ------------------------------
   // ■ 自動発火：7桁で検索
   // ------------------------------
   useEffect(() => {
-    if (postalCode && postalCode.length === 7) {
-      handleSearch();
+    const postal = normalizeZip(rawPostal ?? "");
+    if (postal.length === 7 && postal !== lastSearchedRef.current) {
+      handleSearch(postal);
     }
-  }, [postalCode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawPostal]);
 
   // ------------------------------
   // ■ 検索処理
   // ------------------------------
-  const handleSearch = async () => {
-    if (!postalCode || postalCode.length !== 7) return;
+  const handleSearch = async (postalArg?: string) => {
+    const postal = normalizeZip(rawPostal ?? "");
+    if (!postal) return;
+    if (postal.length !== 7) return;
 
     setLoading(true);
-    setError("");
+    setApiError("");
+    lastSearchedRef.current = postal;
+
+    // 入力欄も正規化した値に寄せる（見た目も整う）
+    setValue(name, postal, { shouldDirty: true, shouldTouch: true });
 
     try {
       const res = await fetch(
-        `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`
+        `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postal}`
       );
       const data = await res.json();
 
       if (data.status !== 200 || !data.results) {
-        setError("住所が見つかりませんでした");
+        setApiError("住所が見つかりませんでした");
         return;
       }
 
       const result = data.results[0];
+      const address1 = `${result.address1}${result.address2}${result.address3}`;
 
-      const address1 = result.address1 + result.address2 + result.address3; // 都道府県 + 市区町村 + 丁目
-
-      setValue(address1Name, address1);
-      setValue(address2Name, ""); // 番地（ユーザー入力）
-      setValue(address3Name, ""); // 建物名（ユーザー入力）
+      // 住所自動入力：値が入ったことをフォーム側にも認識させる
+      setValue(address1Name, address1, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+      setValue(address2Name, "", { shouldDirty: true, shouldTouch: true });
+      setValue(address3Name, "", { shouldDirty: true, shouldTouch: true });
     } catch (err) {
-      setError("住所検索でエラーが発生しました");
+      setApiError("住所検索でエラーが発生しました");
     } finally {
       setLoading(false);
     }
@@ -81,20 +114,28 @@ export default function ZipField({
       <div className={s.wrap}>
         <input
           type="text"
-          className={s.input}
-          maxLength={7}
+          className={`${s.input} ${showError ? s.errorInput : ""}`}
+          maxLength={8} // ハイフン入れてもOKにする
           placeholder="例: 5300001"
           {...register(name)}
+          aria-invalid={showError}
+          inputMode="numeric"
+          autoComplete="postal-code"
         />
 
-        <button className={s.btn} type="button" onClick={handleSearch}>
-          住所検索
+        <button
+          className={s.btn}
+          type="button"
+          onClick={() => handleSearch()}
+          disabled={loading}
+        >
+          {loading ? "検索中…" : "住所検索"}
           <IoIosArrowDown />
         </button>
       </div>
 
-      {loading && <p>検索中です…</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {showError && <p className={s.errorText}>{errorMsg}</p>}
+      {!showError && apiError && <p className={s.apiErrorText}>{apiError}</p>}
     </div>
   );
 }

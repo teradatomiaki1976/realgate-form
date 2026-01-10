@@ -9,39 +9,45 @@ type Props = {
   name: string;
   type?: string;
   placeholder?: string;
-  required?: boolean;
+  required?: boolean; // 見た目用（バリデーションはZodで）
   className?: string;
   disabled?: boolean;
 };
+
+const getByPath = (obj: any, path: string) =>
+  path.split(".").reduce((acc, key) => acc?.[key], obj);
 
 export default function TextField({
   label,
   name,
   type = "text",
   placeholder = "",
-  required,
   className,
+  disabled,
 }: Props) {
   const {
     register,
-    formState: { errors },
+    formState: { errors, touchedFields, isSubmitted },
   } = useFormContext();
 
-  const error = errors?.[name]?.message as string | undefined;
+  const errorMsg = getByPath(errors, name)?.message as string | undefined;
+  const touched = !!getByPath(touchedFields, name);
+  const showError = !!errorMsg && (touched || isSubmitted);
 
   return (
     <div className={`${s.field} ${className ?? ""}`}>
-      {/* required の * はここでは表示しない */}
       {label && <label className={s.label}>{label}</label>}
 
       <input
         type={type}
         placeholder={placeholder}
-        {...register(name, { required })}
-        className={`${s.input} ${error ? s.errorInput : ""}`}
+        disabled={disabled}
+        {...register(name)}
+        className={`${s.input} ${showError ? s.errorInput : ""}`}
+        aria-invalid={showError}
       />
 
-      {error && <p className={s.errorText}>{error}</p>}
+      {showError && <p className={s.errorText}>{errorMsg}</p>}
     </div>
   );
 }

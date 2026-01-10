@@ -4,6 +4,7 @@
 import { useMemo, useState, useEffect, type ReactNode } from "react";
 import { useForm, FormProvider, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { Resolver } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { applySchema } from "@/lib/validation/apply.schema";
@@ -23,6 +24,8 @@ import { BsFillPeopleFill } from "react-icons/bs";
 import { RiServiceFill } from "react-icons/ri";
 import { AiFillSchedule } from "react-icons/ai";
 import { FaClipboardQuestion } from "react-icons/fa6";
+
+import { useRouter } from "next/navigation";
 
 // -------------------- 日付初期値 --------------------
 
@@ -96,7 +99,7 @@ function SectionCard({ title, icon, sub, children }: SectionCardProps) {
 
 export default function ApplyForm() {
   const methods = useForm<ApplyFormValues>({
-    resolver: zodResolver(applySchema),
+    resolver: zodResolver(applySchema) as unknown as Resolver<ApplyFormValues>,
     shouldUnregister: false,
     mode: "onBlur",
     defaultValues: {
@@ -153,6 +156,7 @@ export default function ApplyForm() {
         relationshipNote: "",
       },
       plan: undefined,
+      startDateType: "next_month",
       startDateValue: "",
       hasOtherInsurance: "no",
       otherInsurance: {
@@ -165,8 +169,15 @@ export default function ApplyForm() {
     },
   });
 
-  const { register, handleSubmit, watch, resetField, setValue, getValues } =
-    methods;
+  const {
+    register,
+    handleSubmit,
+    watch,
+    resetField,
+    setValue,
+    getValues,
+    formState: { errors, isSubmitted, isSubmitting },
+  } = methods;
 
   // -------------------- options --------------------
 
@@ -262,10 +273,29 @@ export default function ApplyForm() {
     setValue("insured.facilityOther", "");
   }, [pref, setValue]);
 
+  // -------------------- 被保険者との続柄 --------------------
+
+  const relationshipType = watch("member.relationshipType");
+
+  useEffect(() => {
+    if (relationshipType !== "親族") {
+      setValue("member.relationshipNote", "");
+    }
+  }, [relationshipType, setValue]);
+
   // -------------------- 他保険 --------------------
 
   const hasOtherInsurance = watch("hasOtherInsurance");
   const needConsenter = isInsuredSameAsMember;
+
+  useEffect(() => {
+    if (hasOtherInsurance !== "yes") {
+      setValue("otherInsurance.company", "");
+      setValue("otherInsurance.type", "");
+      setValue("otherInsurance.amount", "");
+      setValue("otherInsurance.expire", "");
+    }
+  }, [hasOtherInsurance, setValue]);
 
   // -------------------- 補償開始日 --------------------
 
@@ -279,16 +309,28 @@ export default function ApplyForm() {
   }, [startDateType, setValue]);
 
   // -------------------- submit --------------------
+  const router = useRouter();
 
   const onSubmit: SubmitHandler<ApplyFormValues> = (data) => {
-    console.log("apply form submit:", data);
+    console.log("✅ submit ok", data);
+
+    sessionStorage.setItem("applyFormDraft", JSON.stringify(data));
+    router.push("/apply/confirm");
+  };
+
+  const onInvalid = (errors: any) => {
+    console.log("❌ submit invalid", errors);
+
+    // （任意）最初のエラーへスクロールしたいなら
+    const el = document.querySelector('[aria-invalid="true"]');
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   // -------------------- render --------------------
 
   return (
     <FormProvider {...methods}>
-      <form className={s.root} onSubmit={handleSubmit(onSubmit)}>
+      <form className={s.root} onSubmit={handleSubmit(onSubmit, onInvalid)}>
         {/* -------------------- 会員 -------------------- */}
         <SectionCard
           title="会員 (加入者) 情報"
@@ -407,13 +449,13 @@ export default function ApplyForm() {
             </h3>
             <div className={s.inner}>
               <TextField
-                label="電話番号1（日中連絡が取れる番号）"
+                label="電話番号1【日中連絡が取れる番号】"
                 name="member.tel1"
                 placeholder="09012345678"
                 required
               />
               <TextField
-                label="電話番号2"
+                label="電話番号2【※任意】"
                 name="member.tel2"
                 placeholder="09012345678"
               />
@@ -425,24 +467,38 @@ export default function ApplyForm() {
             </div>
           </div>
 
+          {/* -------------------- 被保険者との続柄-------------------- */}
           <div className={s.wrap}>
             <h3 className={s.subtitle}>
               被保険者との続柄<span className={s.required}>必須</span>
             </h3>
+
             <div className={s.inner}>
               <RadioGroup
                 name="member.relationshipType"
-                required
                 options={[
                   { label: "本人", value: "本人" },
                   { label: "親族", value: "親族" },
                 ]}
               />
-              <TextField
-                label="親族の場合、以下に関係性をご記入お願いします"
-                name="member.relationshipNote"
-                placeholder="息子、娘、兄弟、等"
-              />
+
+              <AnimatePresence initial={false}>
+                {relationshipType === "親族" && (
+                  <motion.div
+                    className={s.inner}
+                    initial={{ opacity: 0, height: 0, y: -8 }}
+                    animate={{ opacity: 1, height: "auto", y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -8 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                  >
+                    <TextField
+                      label="親族の場合、以下に関係性をご記入お願いします"
+                      name="member.relationshipNote"
+                      placeholder="息子、娘、兄弟、等"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </SectionCard>
@@ -730,6 +786,9 @@ export default function ApplyForm() {
                 </ul>
               </label>
             </div>
+            {errors.plan?.message && isSubmitted && (
+              <p className={s.errorText}>{String(errors.plan.message)}</p>
+            )}
           </div>
         </SectionCard>
 
@@ -800,8 +859,8 @@ export default function ApplyForm() {
         </SectionCard>
 
         <div className={s.formBtns}>
-          <button className={s.nextBtn} type="submit">
-            確認画面へ
+          <button className={s.nextBtn} type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "確認画面へ移動中…" : "入力内容を確認する"}
           </button>
         </div>
       </form>
