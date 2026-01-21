@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import type { ApplyFormValues } from "@/lib/validation/apply.schema";
-// ✅ ここはプロジェクト側の export 名に合わせてね
 import { applySchema } from "@/lib/validation/apply.schema";
 
 import SectionCard from "@/components/ui/SectionCard";
@@ -71,7 +70,6 @@ function joinText(parts: (string | undefined)[], sep = " ") {
   return v || "—";
 }
 
-// 氏名はスペース入れない方が自然（フリガナも同様）
 function joinName(parts: (string | undefined)[]) {
   const v = parts.filter(Boolean).join("");
   return v || "—";
@@ -96,14 +94,6 @@ function EditLink({ href }: { href: string }) {
   );
 }
 
-// SBS仕様メモ：2=正常完了, 3=金融機関エラー, 4=GWエラー/中止, 9=金融機関で中止
-function mapSbsStatusToUi(status?: number | null): SbsUiStatus {
-  if (!status) return "processing";
-  if (status === 2) return "success";
-  if (status === 3 || status === 4 || status === 9) return "failed";
-  return "processing";
-}
-
 /* =========================
    main
 ========================= */
@@ -112,12 +102,13 @@ export default function ApplyConfirm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const entry = searchParams.get("entry"); // callback後に /apply/confirm?entry=xxxx
-  const draftIdFromQuery = searchParams.get("draft"); // 任意：今後draftId運用するなら
+  // 先方仕様：confirmに status が付く
+  const status = searchParams.get("status"); // success | failed | cancel | null
+  const entry = searchParams.get("entry"); // 任意：表示用（無くてもOK）
+  const draftIdFromQuery = searchParams.get("draft"); // 任意：将来運用用
 
   const [state, setState] = useState<DraftState>({ status: "loading" });
   const [sbsUiStatus, setSbsUiStatus] = useState<SbsUiStatus>("none");
-  const [sbsRawStatus, setSbsRawStatus] = useState<number | null>(null);
 
   // draft読み込み
   useEffect(() => {
@@ -131,57 +122,22 @@ export default function ApplyConfirm() {
 
   // 下書き無し → Applyへ戻す（直リンク/リロード対策）
   useEffect(() => {
-    if (state.status === "missing") {
-      router.replace("/apply");
-    }
+    if (state.status === "missing") router.replace("/apply");
   }, [state.status, router]);
 
-  // SBS status取得（entryがある時だけ）
+  // ✅ SBS状態判定（status優先）
   useEffect(() => {
-    // entry無しなら未実施状態
-    if (!entry) {
-      setSbsUiStatus("none");
-      setSbsRawStatus(null);
+    if (status === "success") {
+      setSbsUiStatus("success");
       return;
     }
-
-    // entryあり＝「戻ってきた」可能性が高いので一旦処理中
-    setSbsUiStatus("processing");
-
-    // ✅ ここは後で実装するAPIに合わせて変更してOK
-    // 例：/apply/sbs/status?entry=xxxxx で JSON { status: number } を返す想定
-    const controller = new AbortController();
-
-    (async () => {
-      try {
-        const res = await fetch(
-          `/apply/sbs/status?entry=${encodeURIComponent(entry)}`,
-          {
-            method: "GET",
-            cache: "no-store",
-            signal: controller.signal,
-          },
-        );
-
-        if (!res.ok) {
-          // APIまだ無い/エラーでもConfirmは落とさない
-          setSbsUiStatus("processing");
-          return;
-        }
-
-        const json = (await res.json()) as { status?: number };
-        const raw = typeof json.status === "number" ? json.status : null;
-
-        setSbsRawStatus(raw);
-        setSbsUiStatus(mapSbsStatusToUi(raw));
-      } catch {
-        // ネットワーク等：処理中表示のまま
-        setSbsUiStatus("processing");
-      }
-    })();
-
-    return () => controller.abort();
-  }, [entry]);
+    if (status === "failed" || status === "cancel") {
+      setSbsUiStatus("failed");
+      return;
+    }
+    // status無し＝まだ未実施
+    setSbsUiStatus("none");
+  }, [status]);
 
   const data = state.status === "ready" ? state.data : null;
 
@@ -193,14 +149,14 @@ export default function ApplyConfirm() {
   const sbsKana = data
     ? `${data.member.lastNameKana ?? ""}${data.member.firstNameKana ?? ""}`
     : "";
-  // 表示専用整形（Confirmの表示ロジック）
+
   const view = useMemo(() => {
     if (!data) return null;
 
     const member = data.member;
     const insured = data.insured;
     const consenter = data.consenter;
-    const planType = data.plan; // "simple" | "rich" | undefined
+    const planType = data.plan;
 
     // ---- 会員（加入者） ----
     const memberName = joinName([member.lastName, member.firstName]);
@@ -226,7 +182,7 @@ export default function ApplyConfirm() {
     );
 
     const tel1 = formatTel(member.tel1);
-    const tel2 = member.tel2 ? formatTel(member.tel2) : ""; // 空は非表示
+    const tel2 = member.tel2 ? formatTel(member.tel2) : "";
     const email = member.email || "—";
 
     const relationship =
@@ -235,9 +191,7 @@ export default function ApplyConfirm() {
         : member.relationshipType || "—";
 
     // ---- 被保険者（本人） ----
-    // ここは「同一チェック」を値として持ってるならそれを優先
-    // （defaultValuesに isInsuredSameAsMember: false を追加するのおすすめ）
-    const insuredSame = Boolean((data as any).isInsuredSameAsMember);
+    const insuredSame = Boolean(data.isInsuredSameAsMember);
 
     const insuredName = joinName([insured.lastName, insured.firstName]);
     const insuredKana = joinName([insured.lastNameKana, insured.firstNameKana]);
@@ -248,7 +202,7 @@ export default function ApplyConfirm() {
       insured.birthDay,
     );
 
-    // 施設表示：corporation === "other" のときは facilityOther を優先
+    // ★ value が "other" の時にその他扱い
     const facilityView =
       insured.corporation === "other"
         ? {
@@ -262,9 +216,9 @@ export default function ApplyConfirm() {
             name: insured.facilityName || "—",
           };
 
-    // ---- 同意者（任意/条件付き） ----
-    // 「被保険者=会員」のときだけ出すのが筋
+    // ---- 同意者（条件付き） ----
     const showConsenter = insuredSame;
+
     const consenterName = joinName([consenter.lastName, consenter.firstName]);
     const consenterKana = joinName([
       consenter.lastNameKana,
@@ -274,9 +228,7 @@ export default function ApplyConfirm() {
     const consenterRel =
       consenter.relationshipType === "親族" &&
       consenter.relationshipNote?.trim()
-        ? `${
-            consenter.relationshipType
-          }（${consenter.relationshipNote.trim()}）`
+        ? `${consenter.relationshipType}（${consenter.relationshipNote.trim()}）`
         : consenter.relationshipType || "—";
 
     const consenterTel = formatTel(consenter.tel);
@@ -349,7 +301,6 @@ export default function ApplyConfirm() {
       ====================== */}
       <SectionCard title="会員（加入者）情報" icon={<FaAddressCard />}>
         <EditLink href="/apply?focus=member" />
-
         <Row label="お名前" value={view.member.memberName} />
         <Row label="お名前（フリガナ）" value={view.member.memberKana} />
         <Row label="生年月日" value={view.member.memberBirth} />
@@ -391,7 +342,6 @@ export default function ApplyConfirm() {
       {view.consenter.showConsenter && (
         <SectionCard title="同意者情報" icon={<BsFillPeopleFill />}>
           <EditLink href="/apply?focus=consenter" />
-
           <Row label="お名前" value={view.consenter.consenterName} />
           <Row
             label="お名前（フリガナ）"
@@ -423,7 +373,6 @@ export default function ApplyConfirm() {
       ====================== */}
       <SectionCard title="他の保険契約について" icon={<FaClipboardQuestion />}>
         <EditLink href="/apply?focus=otherInsurance" />
-
         <Row
           label="他の契約"
           value={view.otherInsurance.hasOther ? "ある" : "ない"}
@@ -446,13 +395,12 @@ export default function ApplyConfirm() {
           口座振替の登録を行います。外部の手続き画面へ移動します。
         </p>
 
+        {/* 未実施 */}
         {sbsUiStatus === "none" && (
           <form action="/api/sbs/start" method="post">
             {draftIdFromQuery && (
               <input type="hidden" name="draft" value={draftIdFromQuery} />
             )}
-
-            {/* ★追加：SBS必須分 */}
             <input type="hidden" name="name" value={sbsName} />
             <input type="hidden" name="name_katakana" value={sbsKana} />
 
@@ -462,6 +410,7 @@ export default function ApplyConfirm() {
           </form>
         )}
 
+        {/* 先方仕様では“processing”は基本使わないが、将来API照会したい時用に枠だけ残す */}
         {sbsUiStatus === "processing" && (
           <div className={s.statusBox}>
             <div className={s.statusTitle}>手続き状況</div>
@@ -472,17 +421,16 @@ export default function ApplyConfirm() {
           </div>
         )}
 
+        {/* 成功 */}
         {sbsUiStatus === "success" && (
           <div className={s.statusBox}>
             <div className={s.statusTitle}>手続き状況</div>
             <div className={s.statusText}>✅ 登録完了</div>
             {entry && <div className={s.statusSub}>受付番号：{entry}</div>}
-            {typeof sbsRawStatus === "number" && (
-              <div className={s.statusSub}>ステータス：{sbsRawStatus}</div>
-            )}
           </div>
         )}
 
+        {/* 失敗 or 中止 */}
         {sbsUiStatus === "failed" && (
           <div className={s.statusBox}>
             <div className={s.statusTitle}>手続き状況</div>
@@ -495,7 +443,6 @@ export default function ApplyConfirm() {
               {draftIdFromQuery && (
                 <input type="hidden" name="draft" value={draftIdFromQuery} />
               )}
-
               <input type="hidden" name="name" value={sbsName} />
               <input type="hidden" name="name_katakana" value={sbsKana} />
 

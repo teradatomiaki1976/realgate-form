@@ -1,34 +1,44 @@
 // src/app/apply/sbs/callback/route.ts
 import { NextResponse } from "next/server";
 
-function pickEntryNumber(fd: FormData) {
-  // 仕様書で返る可能性のあるキーを広めに拾う（後で確定したら絞ってOK）
-  return (
-    String(fd.get("entry_number") ?? "") ||
-    String(fd.get("cs_number") ?? "") ||
-    ""
-  );
+type UiStatus = "success" | "failed" | "cancel";
+
+function normalizeStatus(v: string | null): UiStatus {
+  const s = (v ?? "").toLowerCase();
+  if (s === "success") return "success";
+  if (s === "cancel") return "cancel";
+  if (s === "failed") return "failed";
+  return "failed";
 }
 
-function redirectToConfirm(req: Request, status: string, entry: string) {
-  const url = new URL("/apply/confirm", req.url);
-  if (status) url.searchParams.set("status", status);
+function toConfirmUrl(reqUrl: string, status: UiStatus, entry?: string | null) {
+  const url = new URL("/apply/confirm", reqUrl); // 同一オリジンに飛ばす
+  url.searchParams.set("status", status);
   if (entry) url.searchParams.set("entry", entry);
-  return NextResponse.redirect(url);
+  return url;
 }
 
+// ✅ GET: ?status=success / failed / cancel で戻る
 export async function GET(req: Request) {
-  const sp = new URL(req.url).searchParams;
-  const status = sp.get("status") ?? "";
-  const entry = sp.get("entry") ?? ""; // GETでentry付く場合も一応
-  return redirectToConfirm(req, status, entry);
+  const { searchParams } = new URL(req.url);
+  const status = normalizeStatus(searchParams.get("status"));
+
+  // entry は任意（無ければ空でOK）
+  const entry = searchParams.get("entry");
+
+  return NextResponse.redirect(toConfirmUrl(req.url, status, entry), 302);
 }
 
+// ✅ POST: 将来SBSがPOSTで返してくるケースにも耐える
 export async function POST(req: Request) {
-  const sp = new URL(req.url).searchParams;
-  const status = sp.get("status") ?? ""; // URLの ?status=success を拾う
   const fd = await req.formData();
-  const entry = pickEntryNumber(fd);
 
-  return redirectToConfirm(req, status, entry);
+  const status = normalizeStatus(
+    String(fd.get("status") ?? fd.get("result") ?? ""),
+  );
+
+  const entry =
+    String(fd.get("entry_number") ?? fd.get("entry") ?? "").trim() || null;
+
+  return NextResponse.redirect(toConfirmUrl(req.url, status, entry), 303);
 }

@@ -325,7 +325,7 @@ export default function ApplyForm() {
   // -------------------- 施設名（段階表示） --------------------
   const corp = watch("insured.corporation");
   const pref = watch("insured.prefecture");
-  const isCorpOther = corp === "other";
+  const isCorpOther = corp === "その他";
 
   useEffect(() => {
     if (!hydratedRef.current) return;

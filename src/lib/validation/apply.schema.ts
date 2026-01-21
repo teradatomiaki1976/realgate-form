@@ -62,8 +62,8 @@ export const insuredSchema = memberSchema
 export const consenterSchema = z.object({
   lastName: z.string().optional(),
   firstName: z.string().optional(),
-  lastNameKana: kanaRequired,
-  firstNameKana: kanaRequired,
+  lastNameKana: z.string().optional(),
+  firstNameKana: z.string().optional(),
   tel: z.string().optional(),
   relationshipType: z.string().optional(),
   relationshipNote: z.string().optional(),
@@ -171,7 +171,7 @@ export const applySchema = z
     }
 
     // ---- 施設：法人が other の時だけ facilityOther 必須 ----
-    if (data.insured.corporation === "other") {
+    if (data.insured.corporation === "その他") {
       if (
         !data.insured.facilityOther ||
         data.insured.facilityOther.trim() === ""
@@ -214,6 +214,39 @@ export const applySchema = z
           code: "custom",
           path: ["consenter", "lastName"],
           message: "同意者の氏名を入力してください",
+        });
+      }
+      if (
+        !data.consenter.lastNameKana ||
+        data.consenter.lastNameKana.trim() === ""
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["consenter", "lastNameKana"],
+          message: "必須項目です",
+        });
+      } else if (!KATAKANA.test(data.consenter.lastNameKana)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["consenter", "lastNameKana"],
+          message: "カタカナで入力してください",
+        });
+      }
+
+      if (
+        !data.consenter.firstNameKana ||
+        data.consenter.firstNameKana.trim() === ""
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["consenter", "firstNameKana"],
+          message: "必須項目です",
+        });
+      } else if (!KATAKANA.test(data.consenter.firstNameKana)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["consenter", "firstNameKana"],
+          message: "カタカナで入力してください",
         });
       }
       if (!data.consenter.tel || data.consenter.tel.trim() === "") {
