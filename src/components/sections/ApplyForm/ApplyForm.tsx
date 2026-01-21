@@ -208,27 +208,27 @@ export default function ApplyForm() {
 
   const corpOptions = useMemo(
     () => [
-      { label: "法人A", value: "corp_a" },
-      { label: "法人B", value: "corp_b" },
-      { label: "その他", value: "other" },
+      { label: "法人A", value: "法人A" },
+      { label: "法人B", value: "法人B" },
+      { label: "その他", value: "その他" },
     ],
-    []
+    [],
   );
 
   const prefOptions = useMemo(
     () => [
-      { label: "東京都", value: "tokyo" },
-      { label: "大阪府", value: "osaka" },
+      { label: "東京都", value: "東京都" },
+      { label: "大阪府", value: "大阪府" },
     ],
-    []
+    [],
   );
 
   const facilityOptions = useMemo(
     () => [
-      { label: "〇〇ケアセンター", value: "facility_1" },
-      { label: "△△ホーム", value: "facility_2" },
+      { label: "〇〇ケアセンター", value: "〇〇ケアセンター" },
+      { label: "△△ホーム", value: "△△ホーム" },
     ],
-    []
+    [],
   );
 
   // -------------------- draft復元（修正する→戻ったときに値を残す） --------------------
@@ -294,7 +294,7 @@ export default function ApplyForm() {
     const age = calcAge(
       insuredBirthYear ?? "",
       insuredBirthMonth ?? "",
-      insuredBirthDay ?? ""
+      insuredBirthDay ?? "",
     );
     if (age !== null) setValue("insured.age", age);
   }, [insuredBirthYear, insuredBirthMonth, insuredBirthDay, setValue]);
