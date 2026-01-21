@@ -104,8 +104,8 @@ export default function ApplyConfirm() {
 
   // 先方仕様：confirmに status が付く
   const status = searchParams.get("status"); // success | failed | cancel | null
-  const entry = searchParams.get("entry"); // 任意：表示用（無くてもOK）
-  const draftIdFromQuery = searchParams.get("draft"); // 任意：将来運用用
+  const entry = searchParams.get("entry"); // 表示用（無くてもOK）
+  const draftIdFromQuery = searchParams.get("draft"); // 将来運用用
 
   const [state, setState] = useState<DraftState>({ status: "loading" });
   const [sbsUiStatus, setSbsUiStatus] = useState<SbsUiStatus>("none");

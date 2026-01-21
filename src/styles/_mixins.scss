@@ -4,7 +4,7 @@
 
 /* rem変換 */
 @function rem($px) {
-  $numeric: if(unit($px) == "px", math.div($px, 1px), $px);
+  $numeric: if(math.unit($px) == "px", math.div($px, 1px), $px);
   @return math.div($numeric, 16) * 1rem;
 }
 
