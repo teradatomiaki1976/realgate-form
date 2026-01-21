@@ -1,7 +1,7 @@
 // src/components/sections/ApplyForm/ApplyForm.tsx
 "use client";
 
-import { useMemo, useState, useEffect, type ReactNode } from "react";
+import { useMemo, useEffect, useRef, type ReactNode } from "react";
 import { useForm, FormProvider, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
@@ -71,6 +71,87 @@ function buildMonthStartOptions(monthsAhead = 12) {
   });
 }
 
+// -------------------- draft復元ユーティリティ --------------------
+
+const STORAGE_KEY = "applyFormDraft";
+
+function safeParseDraft(raw: string | null): ApplyFormValues | null {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as ApplyFormValues;
+  } catch {
+    return null;
+  }
+}
+
+// defaultValues を定数化（reset時にmergeして安全に復元するため）
+const DEFAULT_VALUES: ApplyFormValues = {
+  member: {
+    lastName: "",
+    firstName: "",
+    lastNameKana: "",
+    firstNameKana: "",
+    gender: "",
+    birthYear: defaultBirthYear,
+    birthMonth: defaultBirthMonth,
+    birthDay: defaultBirthDay,
+    age: undefined,
+    postalCode: "",
+    address1: "",
+    address2: "",
+    address3: "",
+    addressKana1: "",
+    addressKana2: "",
+    tel1: "",
+    tel2: "",
+    email: "",
+    relationshipType: "本人",
+    relationshipNote: "",
+  },
+  insured: {
+    lastName: "",
+    firstName: "",
+    lastNameKana: "",
+    firstNameKana: "",
+    gender: "",
+    birthYear: defaultBirthYear,
+    birthMonth: defaultBirthMonth,
+    birthDay: defaultBirthDay,
+    age: undefined,
+    corporation: "",
+    prefecture: "",
+    facilityName: "",
+    facilityOther: "",
+  },
+  consenter: {
+    lastName: "",
+    firstName: "",
+    lastNameKana: "",
+    firstNameKana: "",
+    address1: "",
+    address2: "",
+    address3: "",
+    addressKana1: "",
+    addressKana2: "",
+    addressKana3: "",
+    tel: "",
+    relationshipType: "",
+    relationshipNote: "",
+  },
+  plan: undefined,
+  startDateType: "next_month",
+  startDateValue: "",
+  hasOtherInsurance: "no",
+  otherInsurance: {
+    company: "",
+    type: "",
+    amount: "",
+    expire: "",
+  },
+  agreement: {},
+  isInsuredSameAsMember: false, // ★Confirm表示のキー
+};
+
 // -------------------- SectionCard --------------------
 
 type SectionCardProps = {
@@ -98,75 +179,18 @@ function SectionCard({ title, icon, sub, children }: SectionCardProps) {
 // -------------------- ApplyForm 本体 --------------------
 
 export default function ApplyForm() {
+  const router = useRouter();
+
+  // hydrationガード（draft reset直後の副作用で値が消えるのを防ぐ）
+  const hydratedRef = useRef(false);
+  const prevCorpRef = useRef<string | undefined>(undefined);
+  const prevPrefRef = useRef<string | undefined>(undefined);
+
   const methods = useForm<ApplyFormValues>({
     resolver: zodResolver(applySchema) as unknown as Resolver<ApplyFormValues>,
     shouldUnregister: false,
     mode: "onBlur",
-    defaultValues: {
-      member: {
-        lastName: "",
-        firstName: "",
-        lastNameKana: "",
-        firstNameKana: "",
-        gender: "",
-        birthYear: defaultBirthYear,
-        birthMonth: defaultBirthMonth,
-        birthDay: defaultBirthDay,
-        age: undefined, // ★ setValue してるなら入れとく（型ズレ回避）
-        postalCode: "",
-        address1: "",
-        address2: "",
-        address3: "",
-        addressKana1: "",
-        addressKana2: "",
-        tel1: "",
-        tel2: "",
-        email: "",
-        relationshipType: "本人",
-        relationshipNote: "",
-      },
-      insured: {
-        lastName: "",
-        firstName: "",
-        lastNameKana: "",
-        firstNameKana: "",
-        gender: "",
-        birthYear: defaultBirthYear,
-        birthMonth: defaultBirthMonth,
-        birthDay: defaultBirthDay,
-        age: undefined, // ★ setValue してるなら入れとく
-        corporation: "",
-        prefecture: "",
-        facilityName: "",
-        facilityOther: "",
-      },
-      consenter: {
-        lastName: "",
-        firstName: "",
-        lastNameKana: "",
-        firstNameKana: "",
-        address1: "",
-        address2: "",
-        address3: "",
-        addressKana1: "",
-        addressKana2: "",
-        addressKana3: "",
-        tel: "",
-        relationshipType: "",
-        relationshipNote: "",
-      },
-      plan: undefined,
-      startDateType: "next_month",
-      startDateValue: "",
-      hasOtherInsurance: "no",
-      otherInsurance: {
-        company: "",
-        type: "",
-        amount: "",
-        expire: "",
-      },
-      agreement: {},
-    },
+    defaultValues: DEFAULT_VALUES,
   });
 
   const {
@@ -176,6 +200,7 @@ export default function ApplyForm() {
     resetField,
     setValue,
     getValues,
+    reset,
     formState: { errors, isSubmitted, isSubmitting },
   } = methods;
 
@@ -206,12 +231,52 @@ export default function ApplyForm() {
     []
   );
 
-  // -------------------- state --------------------
+  // -------------------- draft復元（修正する→戻ったときに値を残す） --------------------
+  useEffect(() => {
+    const draft = safeParseDraft(sessionStorage.getItem(STORAGE_KEY));
+    if (!draft) {
+      hydratedRef.current = true;
+      // prevも一応セット
+      prevCorpRef.current = getValues("insured.corporation");
+      prevPrefRef.current = getValues("insured.prefecture");
+      return;
+    }
 
-  const [isInsuredSameAsMember, setIsInsuredSameAsMember] = useState(false);
+    // default + draft をmerge（抜けキーがあっても安全）
+    const merged: ApplyFormValues = {
+      ...DEFAULT_VALUES,
+      ...draft,
+      member: { ...DEFAULT_VALUES.member, ...(draft.member ?? {}) },
+      insured: { ...DEFAULT_VALUES.insured, ...(draft.insured ?? {}) },
+      consenter: { ...DEFAULT_VALUES.consenter, ...(draft.consenter ?? {}) },
+      otherInsurance: {
+        ...DEFAULT_VALUES.otherInsurance,
+        ...(draft.otherInsurance ?? {}),
+      },
+      agreement: {
+        ...(DEFAULT_VALUES.agreement ?? {}),
+        ...(draft.agreement ?? {}),
+      },
+      isInsuredSameAsMember:
+        typeof draft.isInsuredSameAsMember === "boolean"
+          ? draft.isInsuredSameAsMember
+          : DEFAULT_VALUES.isInsuredSameAsMember,
+    };
+
+    reset(merged);
+
+    // reset直後の「法人変更」系副作用で値が消えないよう、前回値も同期してから hydrated
+    prevCorpRef.current = merged.insured?.corporation;
+    prevPrefRef.current = merged.insured?.prefecture;
+    hydratedRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reset]);
+
+  // -------------------- 会員と同じ（RHF一本化） --------------------
+  const isInsuredSameAsMember = !!watch("isInsuredSameAsMember");
+  const needConsenter = isInsuredSameAsMember;
 
   // -------------------- 年齢自動計算 --------------------
-
   const birthYear = watch("member.birthYear");
   const birthMonth = watch("member.birthMonth");
   const birthDay = watch("member.birthDay");
@@ -235,8 +300,9 @@ export default function ApplyForm() {
   }, [insuredBirthYear, insuredBirthMonth, insuredBirthDay, setValue]);
 
   // -------------------- 会員と同じ（被保険者へコピー） --------------------
-
   useEffect(() => {
+    if (!hydratedRef.current) return;
+
     if (isInsuredSameAsMember) {
       const member = getValues("member");
 
@@ -249,46 +315,66 @@ export default function ApplyForm() {
       setValue("insured.birthMonth", member.birthMonth ?? "");
       setValue("insured.birthDay", member.birthDay ?? "");
       setValue("insured.age", member.age);
+
+      // ※施設関連は別物の想定なので触らない
     } else {
       resetField("insured");
     }
   }, [isInsuredSameAsMember, getValues, resetField, setValue]);
 
   // -------------------- 施設名（段階表示） --------------------
-
   const corp = watch("insured.corporation");
   const pref = watch("insured.prefecture");
   const isCorpOther = corp === "other";
 
   useEffect(() => {
-    // 法人が変わったらリセット（事故防止）
-    setValue("insured.prefecture", "");
-    setValue("insured.facilityName", "");
-    setValue("insured.facilityOther", "");
+    if (!hydratedRef.current) return;
+
+    const prev = prevCorpRef.current;
+    if (prev === undefined) {
+      prevCorpRef.current = corp;
+      return;
+    }
+    if (prev !== corp) {
+      // 法人が変わったらリセット（事故防止）
+      setValue("insured.prefecture", "");
+      setValue("insured.facilityName", "");
+      setValue("insured.facilityOther", "");
+    }
+    prevCorpRef.current = corp;
   }, [corp, setValue]);
 
   useEffect(() => {
-    // 都道府県が変わったら施設リセット
-    setValue("insured.facilityName", "");
-    setValue("insured.facilityOther", "");
+    if (!hydratedRef.current) return;
+
+    const prev = prevPrefRef.current;
+    if (prev === undefined) {
+      prevPrefRef.current = pref;
+      return;
+    }
+    if (prev !== pref) {
+      // 都道府県が変わったら施設リセット
+      setValue("insured.facilityName", "");
+      setValue("insured.facilityOther", "");
+    }
+    prevPrefRef.current = pref;
   }, [pref, setValue]);
 
   // -------------------- 被保険者との続柄 --------------------
-
   const relationshipType = watch("member.relationshipType");
 
   useEffect(() => {
+    if (!hydratedRef.current) return;
     if (relationshipType !== "親族") {
       setValue("member.relationshipNote", "");
     }
   }, [relationshipType, setValue]);
 
   // -------------------- 他保険 --------------------
-
   const hasOtherInsurance = watch("hasOtherInsurance");
-  const needConsenter = isInsuredSameAsMember;
 
   useEffect(() => {
+    if (!hydratedRef.current) return;
     if (hasOtherInsurance !== "yes") {
       setValue("otherInsurance.company", "");
       setValue("otherInsurance.type", "");
@@ -298,30 +384,25 @@ export default function ApplyForm() {
   }, [hasOtherInsurance, setValue]);
 
   // -------------------- 補償開始日 --------------------
-
   const startDateType = watch("startDateType");
   const monthOptions = useMemo(() => buildMonthStartOptions(12), []);
 
   useEffect(() => {
+    if (!hydratedRef.current) return;
     if (startDateType !== "other") {
       setValue("startDateValue", "");
     }
   }, [startDateType, setValue]);
 
   // -------------------- submit --------------------
-  const router = useRouter();
-
   const onSubmit: SubmitHandler<ApplyFormValues> = (data) => {
     console.log("✅ submit ok", data);
-
-    sessionStorage.setItem("applyFormDraft", JSON.stringify(data));
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     router.push("/apply/confirm");
   };
 
-  const onInvalid = (errors: any) => {
-    console.log("❌ submit invalid", errors);
-
-    // （任意）最初のエラーへスクロールしたいなら
+  const onInvalid = (errs: any) => {
+    console.log("❌ submit invalid", errs);
     const el = document.querySelector('[aria-invalid="true"]');
     el?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
@@ -357,12 +438,14 @@ export default function ApplyForm() {
               <TextField
                 name="member.lastNameKana"
                 placeholder="セイ"
-                required
+                autoKana
+                removeSpaces
               />
               <TextField
                 name="member.firstNameKana"
                 placeholder="メイ"
-                required
+                autoKana
+                removeSpaces
               />
             </div>
           </div>
@@ -434,11 +517,14 @@ export default function ApplyForm() {
                 label="住所（フリガナ）1"
                 name="member.addressKana1"
                 placeholder="トウキョウトチヨダクチヨダ"
+                autoKana
+                removeSpaces
               />
               <TextField
                 label="住所（フリガナ）2"
                 name="member.addressKana2"
                 placeholder="1-1 コウキョマエマンション301"
+                required
               />
             </div>
           </div>
@@ -467,7 +553,7 @@ export default function ApplyForm() {
             </div>
           </div>
 
-          {/* -------------------- 被保険者との続柄-------------------- */}
+          {/* -------------------- 被保険者との続柄 -------------------- */}
           <div className={s.wrap}>
             <h3 className={s.subtitle}>
               被保険者との続柄<span className={s.required}>必須</span>
@@ -513,12 +599,12 @@ export default function ApplyForm() {
                 チェックしてください
                 <span>（重複する項目に同じ内容が入ります）</span>
               </p>
+
               <label className={s.checkbox}>
                 <input
                   type="checkbox"
                   className={s.input}
-                  checked={isInsuredSameAsMember}
-                  onChange={(e) => setIsInsuredSameAsMember(e.target.checked)}
+                  {...register("isInsuredSameAsMember")}
                 />
                 会員（加入者）と同じ内容
               </label>
@@ -553,13 +639,15 @@ export default function ApplyForm() {
               <TextField
                 name="insured.lastNameKana"
                 placeholder="セイ"
-                required
+                autoKana
+                removeSpaces
                 disabled={isInsuredSameAsMember}
               />
               <TextField
                 name="insured.firstNameKana"
                 placeholder="メイ"
-                required
+                autoKana
+                removeSpaces
                 disabled={isInsuredSameAsMember}
               />
             </div>
@@ -588,16 +676,19 @@ export default function ApplyForm() {
                 name="insured.birthYear"
                 options={generateYears()}
                 required
+                disabled={isInsuredSameAsMember}
               />
               <SelectField
                 name="insured.birthMonth"
                 options={generateMonths()}
                 required
+                disabled={isInsuredSameAsMember}
               />
               <SelectField
                 name="insured.birthDay"
                 options={generateDays()}
                 required
+                disabled={isInsuredSameAsMember}
               />
             </div>
           </div>
@@ -606,6 +697,7 @@ export default function ApplyForm() {
             <h3 className={s.subtitle}>
               ご利用施設について<span className={s.required}>必須</span>
             </h3>
+
             <div className={s.wrap}>
               <p className={s.note}>法人名を選択してください。</p>
               <SelectField
@@ -713,12 +805,14 @@ export default function ApplyForm() {
                 <TextField
                   name="consenter.lastNameKana"
                   placeholder="セイ"
-                  required
+                  autoKana
+                  removeSpaces
                 />
                 <TextField
                   name="consenter.firstNameKana"
                   placeholder="メイ"
-                  required
+                  autoKana
+                  removeSpaces
                 />
               </div>
             </div>
@@ -786,6 +880,7 @@ export default function ApplyForm() {
                 </ul>
               </label>
             </div>
+
             {errors.plan?.message && isSubmitted && (
               <p className={s.errorText}>{String(errors.plan.message)}</p>
             )}
@@ -803,6 +898,7 @@ export default function ApplyForm() {
                 { label: "その他の開始日", value: "other" },
               ]}
             />
+
             <AnimatePresence initial={false}>
               {startDateType === "other" && (
                 <motion.div
@@ -820,6 +916,7 @@ export default function ApplyForm() {
                 </motion.div>
               )}
             </AnimatePresence>
+
             <p className={s.note}>
               ※
               毎月20日までにお申し込みが完了した場合、当月または翌月から補償が開始されます

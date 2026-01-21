@@ -1,12 +1,17 @@
 // src/lib/validation/apply.schema.ts
 import { z } from "zod";
 
+const KATAKANA = /^[ァ-ヶー\s　]+$/; // スペース(半角/全角)と長音OK
+const kanaRequired = z
+  .string()
+  .min(1, "必須項目です")
+  .refine((v) => KATAKANA.test(v), "カタカナで入力してください");
 // ---- member ----
 export const memberSchema = z.object({
   lastName: z.string().min(1, "必須項目です"),
   firstName: z.string().min(1, "必須項目です"),
-  lastNameKana: z.string().min(1, "必須項目です"),
-  firstNameKana: z.string().min(1, "必須項目です"),
+  lastNameKana: kanaRequired,
+  firstNameKana: kanaRequired,
   gender: z.string().min(1, "必須項目です"),
   birthYear: z.string().min(1, "必須項目です"),
   birthMonth: z.string().min(1, "必須項目です"),
@@ -21,7 +26,7 @@ export const memberSchema = z.object({
   address2: z.string().min(1, "必須項目です"),
   address3: z.string().optional(),
 
-  addressKana1: z.string().min(1, "必須項目です"),
+  addressKana1: kanaRequired,
   addressKana2: z.string().min(1, "必須項目です"),
 
   tel1: z.string().min(1, "必須項目です"),
@@ -48,19 +53,19 @@ export const insuredSchema = memberSchema
   })
   .extend({
     corporation: z.string().min(1, "必須項目です"),
-    prefecture: z.string().min(1, "必須項目です"),
-    facilityName: z.string().min(1, "必須項目です"),
-    facilityOther: z.string().min(1, "必須項目です"),
+    prefecture: z.string().optional(),
+    facilityName: z.string().optional(),
+    facilityOther: z.string().optional(),
   });
 
 // ---- consenter ----
 export const consenterSchema = z.object({
-  lastName: z.string().min(1, "必須項目です"),
-  firstName: z.string().min(1, "必須項目です"),
-  lastNameKana: z.string().min(1, "必須項目です"),
-  firstNameKana: z.string().min(1, "必須項目です"),
-  tel: z.string().min(1, "必須項目です"),
-  relationshipType: z.string().min(1, "必須項目です"),
+  lastName: z.string().optional(),
+  firstName: z.string().optional(),
+  lastNameKana: kanaRequired,
+  firstNameKana: kanaRequired,
+  tel: z.string().optional(),
+  relationshipType: z.string().optional(),
   relationshipNote: z.string().optional(),
 
   address1: z.string().optional(),
@@ -177,17 +182,19 @@ export const applySchema = z
           message: "施設名を入力してください",
         });
       }
-      // other のときは下流の選択は不要（値が入ってても別にエラーにしない）
-    } else if (data.insured.corporation) {
-      // 法人が選ばれてる（other以外）なら prefecture + facilityName を必須化
-      if (!data.insured.prefecture) {
+    } else {
+      // other以外：prefecture + facilityName 必須
+      if (!data.insured.prefecture || data.insured.prefecture.trim() === "") {
         ctx.addIssue({
           code: "custom",
           path: ["insured", "prefecture"],
           message: "都道府県を選択してください",
         });
       }
-      if (!data.insured.facilityName) {
+      if (
+        !data.insured.facilityName ||
+        data.insured.facilityName.trim() === ""
+      ) {
         ctx.addIssue({
           code: "custom",
           path: ["insured", "facilityName"],
@@ -201,22 +208,25 @@ export const applySchema = z
       data.member.lastName === data.insured.lastName &&
       data.member.firstName === data.insured.firstName;
 
-    if (samePerson) {
-      if (!data.consenter.lastName || !data.consenter.firstName) {
+    if (data.isInsuredSameAsMember) {
+      if (!data.consenter.lastName || data.consenter.lastName.trim() === "") {
         ctx.addIssue({
           code: "custom",
           path: ["consenter", "lastName"],
           message: "同意者の氏名を入力してください",
         });
       }
-      if (!data.consenter.tel) {
+      if (!data.consenter.tel || data.consenter.tel.trim() === "") {
         ctx.addIssue({
           code: "custom",
           path: ["consenter", "tel"],
           message: "同意者の電話番号を入力してください",
         });
       }
-      if (!data.consenter.relationshipType) {
+      if (
+        !data.consenter.relationshipType ||
+        data.consenter.relationshipType.trim() === ""
+      ) {
         ctx.addIssue({
           code: "custom",
           path: ["consenter", "relationshipType"],
@@ -224,6 +234,7 @@ export const applySchema = z
         });
       }
     }
+
     if (!data.insured.corporation || data.insured.corporation.trim() === "") {
       ctx.addIssue({
         code: "custom",

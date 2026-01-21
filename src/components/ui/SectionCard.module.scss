@@ -1,0 +1,51 @@
+/* src/components/ui/SectionCard.module.scss */
+@use "@/styles/mixins" as m;
+@use "@/styles/tokens" as t;
+
+.card {
+  border-radius: m.radius(lg);
+  background: m.color(surface);
+  overflow: hidden;
+  padding: m.fluid(20, 64);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
+  text-align: center;
+  line-height: 1;
+  padding-bottom: m.fluid(24, 32);
+  border-bottom: 1px solid m.color(border);
+}
+
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: m.fluid(8, 16);
+  font-size: m.fluid(24, 40);
+  .icon {
+    display: inline-flex;
+    line-height: 1;
+    margin-top: m.fluid(2, 5);
+    font-size: m.fluid(40, 48);
+    color: m.color(primary);
+  }
+}
+
+.titleText {
+  line-height: 1.2;
+}
+
+.right {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.body {
+  padding: m.space(16);
+}

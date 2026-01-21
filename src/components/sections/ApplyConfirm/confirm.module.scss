@@ -1,0 +1,167 @@
+/* src/components/sections/ApplyConfirm/confirm.module.scss */
+@use "@/styles/mixins" as m;
+@use "@/styles/tokens" as t;
+
+.wrap {
+  display: grid;
+  gap: m.space(24);
+}
+
+/* ---- 共通行（label / value） ---- */
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: m.fluid(14, 16);
+  padding-block: m.fluid(18, 20);
+  border-bottom: 1px solid t.color(border);
+
+  &:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  @include m.mq(sp) {
+    grid-template-columns: 200px 1fr;
+  }
+}
+
+.label {
+}
+
+.value {
+  /* 住所の改行を効かせる */
+  white-space: pre-line;
+  font-size: m.fluid(18, 20);
+  font-weight: 600;
+}
+
+/* ---- 「修正する」リンク ---- */
+.editWrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: m.fluid(14, 16);
+}
+
+.edit {
+  font-size: m.fluid(14, 16);
+  color: t.color(primary);
+  font-weight: 500;
+  padding: m.fluid(4, 6) m.fluid(14, 16);
+  border: 1px solid t.color(primary);
+  border-radius: m.radius(pill);
+  @include m.transition();
+
+  &:hover {
+    background: #fff;
+  }
+}
+
+/* ---- バッジ（同じ内容） ---- */
+.badge {
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: m.fluid(14, 16);
+  padding: m.fluid(8, 12) m.fluid(14, 16);
+  background: t.color(white);
+  border: 1px solid t.color(border);
+  font-weight: 700;
+  font-size: m.fluid(18, 20);
+  margin-bottom: m.fluid(20, 40);
+}
+
+.subBlock {
+  margin-top: m.fluid(20, 40);
+}
+
+.subTitle {
+  font-weight: 600;
+  font-size: m.fluid(14, 16);
+  margin-bottom: m.fluid(14, 16);
+  display: flex;
+  justify-content: center;
+  background: m.color(text);
+  border-radius: m.radius(md);
+  color: #fff;
+  padding-block: 4px;
+}
+/* ---- 口座振替カード内 ---- */
+.note {
+  font-size: m.rem(16);
+  line-height: 1.7;
+  color: t.color(textSub);
+  margin-bottom: m.space(12);
+}
+
+.primaryBtn,
+.secondaryBtn,
+.finalizeBtn {
+  width: 100%;
+  border-radius: m.rem(12);
+  padding: m.space(16);
+  font-size: m.fluid(20, 24);
+  font-weight: 600;
+
+  @include m.transition(transform);
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.primaryBtn {
+  background: t.color(primary);
+  color: t.color(white);
+}
+
+.secondaryBtn {
+  background: t.color(bgSubtle);
+}
+
+.statusBox {
+  margin-top: m.space(16);
+  padding: m.space(16);
+  border-radius: m.rem(12);
+  border: 1px solid t.color(border);
+  background: t.color(bgSubtle);
+}
+
+.statusTitle {
+  font-weight: 900;
+  font-size: m.rem(16);
+  margin-bottom: m.space(8);
+}
+
+.statusText {
+}
+
+.statusSub {
+  margin-top: m.space(8);
+  font-size: m.rem(12);
+  color: t.color(textSub);
+}
+
+.retryForm {
+  margin-top: m.space(16);
+}
+
+/* ---- 最終確定エリア ---- */
+.finalizeArea {
+  margin-top: m.space(8);
+  padding-top: m.space(16);
+  border-top: 1px solid t.color(border);
+}
+
+.finalizeBtn {
+  background: t.color(text);
+  color: t.color(white);
+}
+
+.finalizeNote {
+}
