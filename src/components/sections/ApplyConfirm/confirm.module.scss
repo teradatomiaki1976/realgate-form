@@ -84,9 +84,13 @@
   padding-block: 4px;
 }
 /* ---- 口座振替カード内 ---- */
-.note {
-  margin-bottom: m.space(12);
+.bankNote,
+.bankNoteSuccess {
+  margin-bottom: m.fluid(24, 30);
+  font-size: m.fluid(16, 20);
   text-align: center;
+  font-weight: 600;
+  color: m.color(red);
 }
 
 .primaryBtn,

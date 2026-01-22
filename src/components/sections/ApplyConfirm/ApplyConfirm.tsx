@@ -391,7 +391,17 @@ export default function ApplyConfirm() {
           口座振替（Confirm末尾）
       ====================== */}
       <SectionCard title="口座振替の登録" icon={<IoCardOutline />}>
-        <p className={s.note}>口座振替の登録を行います。</p>
+        {canFinalize ? (
+          <p className={s.bankNoteSuccess}>
+            口座振替の登録が完了しました。
+            <br />
+            内容に問題がなければ、画面下の「申込み確定（STEP3へ）」を押してください。
+          </p>
+        ) : (
+          <p className={s.bankNote}>
+            口座振替の登録を行います。外部の手続き画面へ移動します。
+          </p>
+        )}
 
         {/* 未実施 */}
         {sbsUiStatus === "none" && (
