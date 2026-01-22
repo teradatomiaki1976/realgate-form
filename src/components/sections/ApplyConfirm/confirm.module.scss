@@ -90,7 +90,6 @@
 .note {
   font-size: m.rem(16);
   line-height: 1.7;
-  color: t.color(textSub);
   margin-bottom: m.space(12);
 }
 
@@ -126,26 +125,27 @@
 
 .statusBox {
   margin-top: m.space(16);
-  padding: m.space(16);
-  border-radius: m.rem(12);
+  padding-block: m.space(16);
+  border-radius: m.radius(lg);
   border: 1px solid t.color(border);
   background: t.color(white);
 }
 
 .statusTitle {
-  font-weight: 700;
   font-size: m.fluid(16, 18);
   margin-bottom: m.space(8);
+  text-align: center;
 }
 
 .statusText {
-  font-size: m.fluid(18, 24);
+  font-weight: 700;
+  font-size: m.fluid(20, 30);
+  text-align: center;
 }
 
 .statusSub {
   margin-top: m.space(8);
   font-size: m.rem(12);
-  color: t.color(textSub);
 }
 
 .retryForm {
@@ -162,7 +162,4 @@
 .finalizeBtn {
   background: t.color(text);
   color: t.color(white);
-}
-
-.finalizeNote {
 }
