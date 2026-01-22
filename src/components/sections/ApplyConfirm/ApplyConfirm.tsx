@@ -395,7 +395,9 @@ export default function ApplyConfirm() {
           <p className={s.bankNoteSuccess}>
             口座振替の登録が完了しました。
             <br />
-            内容に問題がなければ、画面下の「申込み確定（STEP3へ）」を押してください。
+            内容に問題がなければ、画面下の
+            <br />
+            「申込み確定へ」を押してください。
           </p>
         ) : (
           <p className={s.bankNote}>
@@ -473,7 +475,7 @@ export default function ApplyConfirm() {
           aria-disabled={!canFinalize}
           onClick={() => router.push("/apply/complete")}
         >
-          申込み確定（STEP3へ）
+          申込み確定へ
         </button>
 
         {!canFinalize && (
