@@ -393,15 +393,15 @@ export default function ApplyConfirm() {
       <SectionCard title="口座振替の登録" icon={<IoCardOutline />}>
         {canFinalize ? (
           <p className={s.bankNoteSuccess}>
-            口座振替の登録が完了しました。
-            <br />
-            お申し込み情報に問題がなければ、
-            <br />
-            「申込み確定へ」ボタンを押してください。
+            口座振替の登録が完了しました。お申し込み情報に問題なければ
+            <span className={s.span}>
+              さいごに「申込み確定へ」ボタンを押してください。
+            </span>
           </p>
         ) : (
           <p className={s.bankNote}>
-            口座振替の登録を行います。外部の手続き画面へ移動します。
+            口座振替の登録を行います。
+            <span className={s.span}>（外部の手続き画面へ移動します）</span>
           </p>
         )}
 

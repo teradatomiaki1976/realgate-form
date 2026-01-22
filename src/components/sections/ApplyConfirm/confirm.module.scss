@@ -90,7 +90,10 @@
   font-size: m.fluid(16, 20);
   text-align: center;
   font-weight: 600;
-  color: m.color(red);
+  .span {
+    display: block;
+    color: m.color(red);
+  }
 }
 
 .primaryBtn,
