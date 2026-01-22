@@ -53,8 +53,9 @@ export default function CompleteClient({ entryFromQuery }: Props) {
         お申し込み内容を受け付けました。
         {entry ? (
           <>
-            <br />
-            受付番号：<b>{entry}</b>
+            <span className={s.span}>
+              受付番号：<b>{entry}</b>
+            </span>
           </>
         ) : null}
       </p>

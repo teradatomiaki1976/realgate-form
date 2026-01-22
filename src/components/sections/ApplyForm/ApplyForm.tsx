@@ -17,6 +17,9 @@ import SelectField from "@/components/form/SelectField/SelectField";
 import { calcAge } from "@/lib/utils/age";
 import s from "./ApplyForm.module.scss";
 
+// ✅ 施設リストJSON（プロジェクト内に配置して import）
+import facilitiesByCorpJson from "@/data/facilities_by_corp.json";
+
 // react-icons
 import { FaAddressCard } from "react-icons/fa";
 import { FaPerson } from "react-icons/fa6";
@@ -176,6 +179,26 @@ function SectionCard({ title, icon, sub, children }: SectionCardProps) {
   );
 }
 
+// -------------------- 施設データ型 --------------------
+
+type Facility = {
+  name: string;
+  prefecture: string;
+  address?: string | null;
+  zip?: string | null;
+  phone?: string | null;
+};
+
+type FacilitiesByCorp = Record<
+  string,
+  {
+    prefectures: string[];
+    facilities: Facility[];
+  }
+>;
+
+const facilitiesByCorp = facilitiesByCorpJson as unknown as FacilitiesByCorp;
+
 // -------------------- ApplyForm 本体 --------------------
 
 export default function ApplyForm() {
@@ -204,32 +227,43 @@ export default function ApplyForm() {
     formState: { errors, isSubmitted, isSubmitting },
   } = methods;
 
-  // -------------------- options --------------------
+  // -------------------- options（✅ここが今回の主役） --------------------
 
-  const corpOptions = useMemo(
-    () => [
-      { label: "法人A", value: "法人A" },
-      { label: "法人B", value: "法人B" },
+  // 法人：JSONにある法人 + その他
+  const corpOptions = useMemo(() => {
+    const corps = Object.keys(facilitiesByCorp);
+    return [
+      ...corps.map((c) => ({ label: c, value: c })),
       { label: "その他", value: "その他" },
-    ],
-    [],
-  );
+    ];
+  }, []);
 
-  const prefOptions = useMemo(
-    () => [
-      { label: "東京都", value: "東京都" },
-      { label: "大阪府", value: "大阪府" },
-    ],
-    [],
-  );
+  // 選択中法人
+  const corp = watch("insured.corporation");
+  const pref = watch("insured.prefecture");
+  const isCorpOther = corp === "その他";
 
-  const facilityOptions = useMemo(
-    () => [
-      { label: "〇〇ケアセンター", value: "〇〇ケアセンター" },
-      { label: "△△ホーム", value: "△△ホーム" },
-    ],
-    [],
-  );
+  // 都道府県：選んだ法人に紐づく都道府県のみ
+  const prefOptions = useMemo(() => {
+    if (!corp || isCorpOther) return [];
+    const prefs = facilitiesByCorp[corp]?.prefectures ?? [];
+    return prefs.map((p) => ({ label: p, value: p }));
+  }, [corp, isCorpOther]);
+
+  // 施設：選んだ法人 × 都道府県で絞り込んだ施設名のみ
+  const facilityOptions = useMemo(() => {
+    if (!corp || isCorpOther || !pref) return [];
+    const list = facilitiesByCorp[corp]?.facilities ?? [];
+    const filtered = list.filter((f) => f.prefecture === pref);
+
+    // 重複名があればユニーク化（安全策）
+    const names = Array.from(new Set(filtered.map((f) => f.name))).sort(
+      (a, b) => a.localeCompare(b, "ja"),
+    );
+
+    // ✅「施設名だけ送れたらOK」なので name のみを option にする
+    return names.map((name) => ({ label: name, value: name }));
+  }, [corp, isCorpOther, pref]);
 
   // -------------------- draft復元（修正する→戻ったときに値を残す） --------------------
   useEffect(() => {
@@ -323,9 +357,6 @@ export default function ApplyForm() {
   }, [isInsuredSameAsMember, getValues, resetField, setValue]);
 
   // -------------------- 施設名（段階表示） --------------------
-  const corp = watch("insured.corporation");
-  const pref = watch("insured.prefecture");
-  const isCorpOther = corp === "その他";
 
   useEffect(() => {
     if (!hydratedRef.current) return;
