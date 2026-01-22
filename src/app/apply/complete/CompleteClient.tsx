@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import s from "./Complete.module.scss";
 
 function safeParseDraft(raw: string | null) {
   if (!raw) return null;
@@ -45,12 +46,10 @@ export default function CompleteClient({ entryFromQuery }: Props) {
   if (!draft) return null; // replace中
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto", padding: 24 }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>
-        お申し込みが完了しました
-      </h1>
+    <div className={s.root}>
+      <h1 className={s.title}>お申し込みが完了しました</h1>
 
-      <p style={{ lineHeight: 1.8 }}>
+      <p className={s.text}>
         お申し込み内容を受け付けました。
         {entry ? (
           <>
@@ -60,38 +59,9 @@ export default function CompleteClient({ entryFromQuery }: Props) {
         ) : null}
       </p>
 
-      <div
-        style={{ marginTop: 24, display: "flex", gap: 12, flexWrap: "wrap" }}
-      >
-        <button
-          onClick={() => router.replace("/")}
-          style={{
-            padding: "12px 16px",
-            borderRadius: 8,
-            border: "1px solid #ddd",
-            background: "#fff",
-            cursor: "pointer",
-          }}
-        >
+      <div className={s.actions}>
+        <button onClick={() => router.replace("/")} className={s.btn}>
           トップへ戻る
-        </button>
-
-        <button
-          onClick={() => {
-            try {
-              sessionStorage.removeItem("applyFormDraft");
-            } catch {}
-            router.replace("/apply");
-          }}
-          style={{
-            padding: "12px 16px",
-            borderRadius: 8,
-            border: "1px solid #ddd",
-            background: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          もう一度申し込む
         </button>
       </div>
     </div>

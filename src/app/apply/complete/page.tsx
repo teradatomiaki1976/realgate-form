@@ -1,12 +1,26 @@
 // src/app/apply/complete/page.tsx
+import Container from "@/components/layout/Container/Container";
+import PageWrapper from "@/components/layout/PageWrapper/PageWrapper";
+import StepNav from "@/components/common/StepNav/StepNav";
 import CompleteClient from "./CompleteClient";
 
-type Props = {
-  searchParams?: {
-    entry?: string;
-  };
+type SearchParams = {
+  entry?: string;
 };
 
-export default function ApplyCompletePage({ searchParams }: Props) {
-  return <CompleteClient entryFromQuery={searchParams?.entry ?? null} />;
+type Props = {
+  searchParams: Promise<SearchParams>;
+};
+
+export default async function ApplyCompletePage({ searchParams }: Props) {
+  const sp = await searchParams;
+
+  return (
+    <PageWrapper>
+      <Container>
+        <StepNav />
+        <CompleteClient entryFromQuery={sp.entry ?? null} />
+      </Container>
+    </PageWrapper>
+  );
 }
