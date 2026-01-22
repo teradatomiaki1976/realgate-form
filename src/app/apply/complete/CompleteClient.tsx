@@ -1,7 +1,7 @@
 // src/app/apply/complete/CompleteClient.tsx
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 function safeParseDraft(raw: string | null) {
@@ -20,21 +20,29 @@ type Props = {
 export default function CompleteClient({ entryFromQuery }: Props) {
   const router = useRouter();
 
-  const draft = useMemo(() => {
-    return safeParseDraft(sessionStorage.getItem("applyFormDraft"));
-  }, []);
-
-  const entry =
-    entryFromQuery ||
-    sessionStorage.getItem("sbsEntryNumber") ||
-    (draft?.entry_number ? String(draft.entry_number) : null);
+  const [draft, setDraft] = useState<any | null>(null);
+  const [entry, setEntry] = useState<string | null>(entryFromQuery);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // 直リンク対策：下書きが無いなら /apply に戻す
-    if (!draft) router.replace("/apply");
-  }, [draft, router]);
+    // ✅ ここはブラウザでしか動かん
+    const d = safeParseDraft(sessionStorage.getItem("applyFormDraft"));
+    setDraft(d);
 
-  if (!draft) return null;
+    const e =
+      entryFromQuery ||
+      sessionStorage.getItem("sbsEntryNumber") ||
+      (d?.entry_number ? String(d.entry_number) : null);
+
+    setEntry(e);
+    setReady(true);
+
+    // 直リンク対策：下書き無しなら /apply へ戻す
+    if (!d) router.replace("/apply");
+  }, [entryFromQuery, router]);
+
+  if (!ready) return null; // もしくはローディング表示でもOK
+  if (!draft) return null; // replace中
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: 24 }}>
