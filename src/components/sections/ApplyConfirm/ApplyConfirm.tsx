@@ -395,9 +395,9 @@ export default function ApplyConfirm() {
           <p className={s.bankNoteSuccess}>
             口座振替の登録が完了しました。
             <br />
-            内容に問題がなければ、画面下の
+            お申し込み情報に問題がなければ、
             <br />
-            「申込み確定へ」を押してください。
+            「申込み確定へ」ボタンを押してください。
           </p>
         ) : (
           <p className={s.bankNote}>
