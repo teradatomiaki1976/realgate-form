@@ -121,7 +121,7 @@
 }
 
 .secondaryBtn {
-  background: t.color(bgSubtle);
+  background: t.color(white);
 }
 
 .statusBox {
@@ -129,16 +129,17 @@
   padding: m.space(16);
   border-radius: m.rem(12);
   border: 1px solid t.color(border);
-  background: t.color(bgSubtle);
+  background: t.color(white);
 }
 
 .statusTitle {
-  font-weight: 900;
-  font-size: m.rem(16);
+  font-weight: 700;
+  font-size: m.fluid(16, 18);
   margin-bottom: m.space(8);
 }
 
 .statusText {
+  font-size: m.fluid(18, 24);
 }
 
 .statusSub {
