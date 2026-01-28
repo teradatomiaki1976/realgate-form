@@ -94,6 +94,26 @@ function EditLink({ href }: { href: string }) {
   );
 }
 
+function formatStartDateLabel(d: Date) {
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  return `${y}年${m}月${day}日`;
+}
+
+function calcNextStartDate(cutoffDay = 20) {
+  const now = new Date();
+  const offset = now.getDate() <= cutoffDay ? 1 : 2;
+  return new Date(now.getFullYear(), now.getMonth() + offset, 1);
+}
+
+function formatISODateLabel(v?: string) {
+  if (!v) return "—";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return v; // 変な値ならそのまま
+  return formatStartDateLabel(d);
+}
+
 /* =========================
    main
 ========================= */
@@ -109,6 +129,13 @@ export default function ApplyConfirm() {
 
   const [state, setState] = useState<DraftState>({ status: "loading" });
   const [sbsUiStatus, setSbsUiStatus] = useState<SbsUiStatus>("none");
+
+  // 初回描画後にトップへ固定
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
+  }, []);
 
   // draft読み込み
   useEffect(() => {
@@ -244,10 +271,8 @@ export default function ApplyConfirm() {
     // ---- 補償開始日 ----
     const startDate =
       data.startDateType === "next_month"
-        ? "翌月1日から"
-        : data.startDateValue?.trim()
-          ? data.startDateValue.trim()
-          : "—";
+        ? formatStartDateLabel(calcNextStartDate(20))
+        : formatISODateLabel(data.startDateValue?.trim());
 
     // ---- 他の保険 ----
     const hasOther = data.hasOtherInsurance === "yes";

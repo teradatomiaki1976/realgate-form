@@ -26,6 +26,7 @@ export default function SelectField({
   label,
   name,
   options,
+  required,
   defaultValue,
   disabled,
 }: Props) {
@@ -39,10 +40,12 @@ export default function SelectField({
   const touched = !!getByPath(touchedFields, name);
   const showError = !!errorMsg && (touched || isSubmitted);
 
-  // ★ defaultValue で初期値を選択状態にする
   useEffect(() => {
-    if (defaultValue !== undefined && defaultValue !== "") {
-      setValue(name, defaultValue, { shouldValidate: false });
+    if (defaultValue !== undefined) {
+      setValue(name, defaultValue, {
+        shouldValidate: false,
+        shouldTouch: false,
+      });
     }
   }, [defaultValue, name, setValue]);
 
@@ -52,7 +55,7 @@ export default function SelectField({
         {label && <label className={s.label}>{label}</label>}
 
         <select
-          {...register(name)}
+          {...register(name, { required })}
           disabled={disabled}
           className={`${s.select} ${showError ? s.errorSelect : ""}`}
           aria-invalid={showError}

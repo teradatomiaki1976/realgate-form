@@ -104,11 +104,9 @@ export const applySchema = z
       /* 同意者必須 */
     }
     // ---- 続柄：親族のときだけ relationshipNote 必須 ----
+    // member：親族のとき必須
     if (data.member.relationshipType === "親族") {
-      if (
-        !data.member.relationshipNote ||
-        data.member.relationshipNote.trim() === ""
-      ) {
+      if (!data.member.relationshipNote?.trim()) {
         ctx.addIssue({
           code: "custom",
           path: ["member", "relationshipNote"],
@@ -116,6 +114,19 @@ export const applySchema = z
         });
       }
     }
+
+    // consenter：親族 or その他 のとき必須
+    const rt = data.consenter.relationshipType;
+    if (rt === "親族" || rt === "その他") {
+      if (!data.consenter.relationshipNote?.trim()) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["consenter", "relationshipNote"],
+          message: "必須項目です",
+        });
+      }
+    }
+
     // ---- 他保険：ある(yes)の時だけ必須 ----
     if (data.hasOtherInsurance === "yes") {
       const oi = data.otherInsurance ?? {};
@@ -159,14 +170,33 @@ export const applySchema = z
       });
     }
 
-    // ---- startDateType: other の時だけ startDateValue 必須 ----
+    // ---- startDateType: other の時だけ startDateValue 必須 ＋ 遡りNG ----
     if (data.startDateType === "other") {
-      if (!data.startDateValue || data.startDateValue.trim() === "") {
+      const v = data.startDateValue?.trim();
+
+      if (!v) {
         ctx.addIssue({
           code: "custom",
           path: ["startDateValue"],
           message: "開始日を選択してください",
         });
+      } else {
+        const now = new Date();
+        const cutoffDay = 20;
+        const offset = now.getDate() <= cutoffDay ? 1 : 2;
+        const min = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+
+        const selected = new Date(v); // v は yyyy-mm-01 想定
+
+        if (selected < min) {
+          const y = min.getFullYear();
+          const m = min.getMonth() + 1;
+          ctx.addIssue({
+            code: "custom",
+            path: ["startDateValue"],
+            message: `締切の都合上、その開始日は選択できません。最短は ${y}年${m}月1日 です。`,
+          });
+        }
       }
     }
 

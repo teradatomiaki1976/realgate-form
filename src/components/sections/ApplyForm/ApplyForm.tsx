@@ -59,16 +59,20 @@ const generateDays = () =>
     return { label: `${day}日`, value: String(day) };
   });
 
-// 「次の月1日」から monthsAhead か月分の 1日だけを作る
-function buildMonthStartOptions(monthsAhead = 12) {
+// 「次の月1日」から12ヶ月分の選択肢を作成（20日締切）
+function buildMonthStartOptions(monthsAhead = 12, cutoffDay = 20) {
   const now = new Date();
-  const first = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  // 20日までなら翌月、21日以降なら翌々月
+  const offset = now.getDate() <= cutoffDay ? 1 : 2;
+
+  const first = new Date(now.getFullYear(), now.getMonth() + offset, 1);
 
   return Array.from({ length: monthsAhead }, (_, i) => {
     const d = new Date(first.getFullYear(), first.getMonth() + i, 1);
     const y = d.getFullYear();
     const m = d.getMonth() + 1;
-    const value = `${y}-${String(m).padStart(2, "0")}-01`; // ISO
+    const value = `${y}-${String(m).padStart(2, "0")}-01`;
     const label = `${y}年${m}月1日`;
     return { value, label };
   });
@@ -224,6 +228,7 @@ export default function ApplyForm() {
     setValue,
     getValues,
     reset,
+    clearErrors,
     formState: { errors, isSubmitted, isSubmitting },
   } = methods;
 
@@ -392,14 +397,39 @@ export default function ApplyForm() {
   }, [pref, setValue]);
 
   // -------------------- 被保険者との続柄 --------------------
-  const relationshipType = watch("member.relationshipType");
+  // --- relationshipType を2つwatchする ---
+  const [memberRelationshipType, consenterRelationshipType] = watch([
+    "member.relationshipType",
+    "consenter.relationshipType",
+  ]);
 
+  // --- 表示条件（親族 or その他） ---
+  const showMemberRelationshipNote =
+    memberRelationshipType === "親族" || memberRelationshipType === "その他";
+
+  const showConsenterRelationshipNote =
+    consenterRelationshipType === "親族" ||
+    consenterRelationshipType === "その他";
+
+  // --- 値のリセット（表示しない時） ---
   useEffect(() => {
     if (!hydratedRef.current) return;
-    if (relationshipType !== "親族") {
+
+    if (!showMemberRelationshipNote) {
       setValue("member.relationshipNote", "");
+      clearErrors("member.relationshipNote");
     }
-  }, [relationshipType, setValue]);
+
+    if (!showConsenterRelationshipNote) {
+      setValue("consenter.relationshipNote", "");
+      clearErrors("consenter.relationshipNote");
+    }
+  }, [
+    showMemberRelationshipNote,
+    showConsenterRelationshipNote,
+    setValue,
+    clearErrors,
+  ]);
 
   // -------------------- 他保険 --------------------
   const hasOtherInsurance = watch("hasOtherInsurance");
@@ -462,7 +492,7 @@ export default function ApplyForm() {
 
           <div className={s.wrap}>
             <h3 className={s.subtitle}>
-              お名前<span className={s.span}>【フリガナ】</span>
+              お名前<span className={s.span}>【全角フリガナ】</span>
               <span className={s.required}>必須</span>
             </h3>
             <div className={s.grid}>
@@ -600,18 +630,19 @@ export default function ApplyForm() {
               />
 
               <AnimatePresence initial={false}>
-                {relationshipType === "親族" && (
+                {showMemberRelationshipNote && (
                   <motion.div
                     className={s.inner}
                     initial={{ opacity: 0, height: 0, y: -8 }}
                     animate={{ opacity: 1, height: "auto", y: 0 }}
                     exit={{ opacity: 0, height: 0, y: -8 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
+                    style={{ overflow: "hidden" }}
                   >
                     <TextField
                       label="親族の場合、以下に関係性をご記入お願いします"
                       name="member.relationshipNote"
-                      placeholder="息子、娘、兄弟、等"
+                      placeholder="長男、長女、兄、妹 等"
                     />
                   </motion.div>
                 )}
@@ -663,7 +694,7 @@ export default function ApplyForm() {
 
           <div className={s.wrap}>
             <h3 className={s.subtitle}>
-              お名前<span className={s.span}>【フリガナ】</span>
+              お名前<span className={s.span}>【全角フリガナ】</span>
               <span className={s.required}>必須</span>
             </h3>
             <div className={s.grid}>
@@ -829,7 +860,7 @@ export default function ApplyForm() {
 
             <div className={s.wrap}>
               <h3 className={s.subtitle}>
-                お名前<span className={s.span}>【フリガナ】</span>
+                お名前<span className={s.span}>【全角フリガナ】</span>
                 <span className={s.required}>必須</span>
               </h3>
               <div className={s.grid}>
@@ -852,16 +883,36 @@ export default function ApplyForm() {
               <h3 className={s.subtitle}>
                 続柄<span className={s.required}>必須</span>
               </h3>
-              <RadioGroup
-                name="consenter.relationshipType"
-                required
-                options={[
-                  { label: "配偶者", value: "配偶者" },
-                  { label: "子", value: "子" },
-                  { label: "親族", value: "親族" },
-                  { label: "その他", value: "その他" },
-                ]}
-              />
+              <div className={s.inner}>
+                <RadioGroup
+                  name="consenter.relationshipType"
+                  required
+                  options={[
+                    { label: "配偶者", value: "配偶者" },
+                    { label: "子", value: "子" },
+                    { label: "親族", value: "親族" },
+                    { label: "その他", value: "その他" },
+                  ]}
+                />
+                <AnimatePresence initial={false}>
+                  {showConsenterRelationshipNote && (
+                    <motion.div
+                      className={s.inner} // ※ 既存の inner があれば合わせる。なければ subFieldでもOK
+                      initial={{ opacity: 0, height: 0, y: -8 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -8 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <TextField
+                        label="親族・その他の場合、以下に関係性をご記入お願いします"
+                        name="consenter.relationshipNote"
+                        placeholder="長男、長女、兄、妹 等"
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             <div className={s.wrap}>
@@ -925,7 +976,7 @@ export default function ApplyForm() {
               name="startDateType"
               required
               options={[
-                { label: "翌月1日から", value: "next_month" },
+                { label: "翌月1日から【毎月20日締切】", value: "next_month" },
                 { label: "その他の開始日", value: "other" },
               ]}
             />
@@ -947,10 +998,10 @@ export default function ApplyForm() {
                 </motion.div>
               )}
             </AnimatePresence>
-
             <p className={s.note}>
-              ※
-              毎月20日までにお申し込みが完了した場合、当月または翌月から補償が開始されます
+              ※翌々月１日以降の日付を希望する場合は、​開始日を選択して下さい
+              <br />
+              ※毎月20日までにお申し込みが完了した場合、翌月１日から補償開始となります
             </p>
           </div>
         </SectionCard>
