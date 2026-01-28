@@ -213,7 +213,9 @@ export default function ApplyConfirm() {
     const email = member.email || "—";
 
     const relationship =
-      member.relationshipType === "親族" && member.relationshipNote?.trim()
+      (member.relationshipType === "親族" ||
+        member.relationshipType === "その他") &&
+      member.relationshipNote?.trim()
         ? `${member.relationshipType}（${member.relationshipNote.trim()}）`
         : member.relationshipType || "—";
 
@@ -253,7 +255,8 @@ export default function ApplyConfirm() {
     ]);
 
     const consenterRel =
-      consenter.relationshipType === "親族" &&
+      (consenter.relationshipType === "親族" ||
+        consenter.relationshipType === "その他") &&
       consenter.relationshipNote?.trim()
         ? `${consenter.relationshipType}（${consenter.relationshipNote.trim()}）`
         : consenter.relationshipType || "—";

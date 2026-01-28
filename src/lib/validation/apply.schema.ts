@@ -103,9 +103,12 @@ export const applySchema = z
     if (data.isInsuredSameAsMember) {
       /* 同意者必須 */
     }
-    // ---- 続柄：親族のときだけ relationshipNote 必須 ----
-    // member：親族のとき必須
-    if (data.member.relationshipType === "親族") {
+
+    // member：親族 or その他 のとき必須
+    if (
+      data.member.relationshipType === "親族" ||
+      data.member.relationshipType === "その他"
+    ) {
       if (!data.member.relationshipNote?.trim()) {
         ctx.addIssue({
           code: "custom",
