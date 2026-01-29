@@ -575,14 +575,14 @@ export default function ApplyForm() {
               />
 
               <TextField
-                label="住所（フリガナ）1"
+                label="住所（全角フリガナ）1"
                 name="member.addressKana1"
                 placeholder="トウキョウトチヨダクチヨダ"
                 autoKana
                 removeSpaces
               />
               <TextField
-                label="住所（フリガナ）2"
+                label="住所（全角フリガナ）2"
                 name="member.addressKana2"
                 placeholder="1-1 コウキョマエマンション301"
                 required

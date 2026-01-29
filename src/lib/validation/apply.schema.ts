@@ -5,7 +5,7 @@ const KATAKANA = /^[ァ-ヶー\s　]+$/; // スペース(半角/全角)と長音
 const kanaRequired = z
   .string()
   .min(1, "必須項目です")
-  .refine((v) => KATAKANA.test(v), "カタカナで入力してください");
+  .refine((v) => KATAKANA.test(v), "全角フリガナで入力してください");
 // ---- member ----
 export const memberSchema = z.object({
   lastName: z.string().min(1, "必須項目です"),
@@ -262,7 +262,7 @@ export const applySchema = z
         ctx.addIssue({
           code: "custom",
           path: ["consenter", "lastNameKana"],
-          message: "カタカナで入力してください",
+          message: "全角フリガナで入力してください",
         });
       }
 
@@ -279,7 +279,7 @@ export const applySchema = z
         ctx.addIssue({
           code: "custom",
           path: ["consenter", "firstNameKana"],
-          message: "カタカナで入力してください",
+          message: "全角フリガナで入力してください",
         });
       }
       if (!data.consenter.tel || data.consenter.tel.trim() === "") {
