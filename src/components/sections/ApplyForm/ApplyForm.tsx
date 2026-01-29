@@ -570,7 +570,7 @@ export default function ApplyForm() {
               <TextField
                 label="番地、建物名など"
                 name="member.address2"
-                placeholder="1-23-4 グランフロント大阪タワーA"
+                placeholder="1-23-4 グランフロント大阪タワーA 101"
                 required
               />
 
@@ -584,8 +584,9 @@ export default function ApplyForm() {
               <TextField
                 label="住所（全角フリガナ）2"
                 name="member.addressKana2"
-                placeholder="1-1 コウキョマエマンション301"
-                required
+                placeholder="建物・マンション名など"
+                autoKana
+                removeSpaces
               />
             </div>
           </div>

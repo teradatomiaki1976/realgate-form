@@ -27,7 +27,7 @@ export const memberSchema = z.object({
   address3: z.string().optional(),
 
   addressKana1: kanaRequired,
-  addressKana2: z.string().min(1, "必須項目です"),
+  addressKana2: kanaRequired,
 
   tel1: z.string().min(1, "必須項目です"),
   tel2: z.string().optional(),
