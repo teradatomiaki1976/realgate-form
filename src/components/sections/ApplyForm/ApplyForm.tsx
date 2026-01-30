@@ -585,7 +585,6 @@ export default function ApplyForm() {
                 label="住所（全角フリガナ）2"
                 name="member.addressKana2"
                 placeholder="建物・マンション名など"
-                autoKana
                 removeSpaces
               />
             </div>

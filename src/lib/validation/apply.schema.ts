@@ -1,11 +1,21 @@
 // src/lib/validation/apply.schema.ts
 import { z } from "zod";
 
-const KATAKANA = /^[ァ-ヶー\s　]+$/; // スペース(半角/全角)と長音OK
+const KATAKANA = /^[ァ-ヶー\s　]+$/;
+
+// ✅ 住所カナ（カタカナ＋数字＋ハイフン＋スペース）
+const KATAKANA_ADDR = /^[ァ-ヶー0-9０-９\s　\-‐-−ー－]+$/;
+
 const kanaRequired = z
   .string()
   .min(1, "必須項目です")
   .refine((v) => KATAKANA.test(v), "全角フリガナで入力してください");
+
+const kanaAddressRequired = z
+  .string()
+  .min(1, "必須項目です")
+  .refine((v) => KATAKANA_ADDR.test(v), "全角フリガナ・数字で入力してください");
+
 // ---- member ----
 export const memberSchema = z.object({
   lastName: z.string().min(1, "必須項目です"),
@@ -27,7 +37,7 @@ export const memberSchema = z.object({
   address3: z.string().optional(),
 
   addressKana1: kanaRequired,
-  addressKana2: kanaRequired,
+  addressKana2: kanaAddressRequired,
 
   tel1: z.string().min(1, "必須項目です"),
   tel2: z.string().optional(),
