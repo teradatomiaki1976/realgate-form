@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
-    // クライアント（ApplyConfirm.tsx）から送られてきたデータを受け取る
+    // （ApplyConfirm.tsx）から送られてきたデータを受け取る
     const data = await req.json();
 
     // 1. 管理者への通知メール
