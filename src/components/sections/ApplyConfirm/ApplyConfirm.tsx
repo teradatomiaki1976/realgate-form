@@ -318,6 +318,33 @@ export default function ApplyConfirm() {
     };
   }, [data]);
 
+  // メール送信用
+  const handleFinalSubmit = async () => {
+    // data（sessionStorageから復元した入力内容）がない場合は弾く
+    if (!data) return;
+
+    try {
+      const res = await fetch("/api/send-mail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        // ✅ メール送信成功！
+        // キャッシュを消して完了画面へ
+        sessionStorage.removeItem("applyFormDraft");
+        sessionStorage.removeItem("sbsEntryNumber");
+        router.push("/apply/complete");
+      } else {
+        alert("メールの送信に失敗しました。時間をおいて再度お試しください。");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("通信エラーが発生しました。");
+    }
+  };
+
   if (state.status !== "ready" || !view) return null;
 
   const canFinalize = sbsUiStatus === "success";
@@ -501,7 +528,7 @@ export default function ApplyConfirm() {
           type="button"
           disabled={!canFinalize}
           aria-disabled={!canFinalize}
-          onClick={() => router.push("/apply/complete")}
+          onClick={handleFinalSubmit}
         >
           申込み確定へ
         </button>
